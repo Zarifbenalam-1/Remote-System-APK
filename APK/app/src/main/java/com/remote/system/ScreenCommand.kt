@@ -337,6 +337,8 @@ class ScreenCommand(private val context: Context) : CommandHandler {
             prepare()
         }
     }
+    private fun setVideoBitRate(quality: Any) {
+
 
     private fun createVirtualDisplay() {
         virtualDisplay = mediaProjection?.createVirtualDisplay(

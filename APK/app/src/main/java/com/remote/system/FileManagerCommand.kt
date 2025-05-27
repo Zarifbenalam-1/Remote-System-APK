@@ -95,7 +95,7 @@ class FileManagerCommand(private val context: Context) : CommandHandler {
             response.put("data", data)
             response.put("command", "file_manager")
             response.put("action", "list")
-            response.put("clientSocketId", clientId)
+            response.put("clientSocketId", clientSocketId)
 
             socket.emit("device_response", response)
             Log.d(tag, "File list sent successfully: ${filesArray.length()} items")
@@ -238,7 +238,7 @@ class FileManagerCommand(private val context: Context) : CommandHandler {
             response.put("data", data)
             response.put("command", "file_manager")
             response.put("action", "delete")
-            response.put("clientSocketId", clientId)
+            response.put("clientSocketId", clientSocketId)
 
             if (!deleted) {
                 response.put("error", "Failed to delete file/directory")
@@ -282,7 +282,7 @@ class FileManagerCommand(private val context: Context) : CommandHandler {
             response.put("data", data)
             response.put("command", "file_manager")
             response.put("action", "rename")
-            response.put("clientSocketId", clientId)
+            response.put("clientSocketId", clientSocketId)
 
             if (!renamed) {
                 response.put("error", "Failed to rename file")
@@ -325,7 +325,7 @@ class FileManagerCommand(private val context: Context) : CommandHandler {
             response.put("data", data)
             response.put("command", "file_manager")
             response.put("action", "create_folder")
-            response.put("clientSocketId", clientId)
+            response.put("clientSocketId", clientSocketId)
 
             if (!created) {
                 response.put("error", "Failed to create folder")
@@ -385,7 +385,7 @@ class FileManagerCommand(private val context: Context) : CommandHandler {
             errorResponse.put("timestamp", System.currentTimeMillis())
             errorResponse.put("error", error)
             errorResponse.put("command", "file_manager")
-            errorResponse.put("clientSocketId", clientId)
+            errorResponse.put("clientSocketId", clientSocketId)
             socket.emit("device_response", errorResponse)
         } catch (e: JSONException) {
             Log.e(tag, "Error sending error response", e)

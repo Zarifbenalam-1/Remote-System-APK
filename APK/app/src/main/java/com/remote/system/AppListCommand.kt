@@ -56,8 +56,7 @@ class AppListCommand(private val context: Context) : CommandHandler {
             errorResponse.put("timestamp", System.currentTimeMillis())
                 errorResponse.put("error", "Failed to retrieve app list: ${e.message}")
                 errorResponse.put("command", "get_app_list")
-                errorResponse.put("clientId", clientId)
-
+                errorResponse.put("clientId", clientSocketId)
                 socket.emit("command-response", errorResponse)
             } catch (ex: JSONException) {
                 Log.e(tag, "Error sending error response", ex)
