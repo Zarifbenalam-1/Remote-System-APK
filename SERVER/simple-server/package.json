@@ -1,0 +1,21 @@
+{
+  "name": "remote-system-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["android", "remote-control", "socket.io", "nodejs", "standalone", "device-management"],
+  "author": "Remote Device Management Team",
+  "license": "MIT",
+  "description": "Standalone relay server for Remote Device Management - bridges Android devices and Windows clients",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^2.0.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  }
+}

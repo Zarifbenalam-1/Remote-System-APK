@@ -1,0 +1,121 @@
+# Render.com deployment configuration for The Beast (Remote Device Management Server)
+# This file configures automatic deployment to Render.com
+
+services:
+  # Main Beast Server
+  - type: web
+    name: beast-server
+    env: node
+    plan: starter  # Can be upgraded to standard/pro for production
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # Core Configuration
+      - key: NODE_ENV
+        value: production
+      
+      # Server Configuration
+      - key: PORT
+        value: 3000
+      
+      # Security Configuration
+      - key: API_KEY
+        generateValue: true  # Render will generate a secure random value
+      
+      - key: JWT_SECRET
+        generateValue: true  # Render will generate a secure random value
+      
+      # Enable HTTPS (Render handles SSL automatically)
+      - key: FORCE_HTTPS
+        value: true
+      
+      # Session Configuration
+      - key: SESSION_SECRET
+        generateValue: true  # Render will generate a secure random value
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_ENABLED
+        value: true
+      
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000  # 15 minutes
+      
+      # File Upload Configuration
+      - key: MAX_FILE_SIZE
+        value: 52428800  # 50MB
+      
+      - key: ALLOWED_UPLOAD_TYPES
+        value: .pdf,.jpg,.jpeg,.png,.gif,.txt,.json,.log,.zip,.tar.gz
+      
+      # Monitoring Configuration
+      - key: ENABLE_MONITORING
+        value: true
+      
+      - key: MONITORING_UPDATE_INTERVAL
+        value: 30000  # 30 seconds
+      
+      # Logging Configuration
+      - key: LOG_LEVEL
+        value: info
+      
+      - key: ENABLE_ACCESS_LOGS
+        value: true
+      
+      - key: ENABLE_SECURITY_LOGS
+        value: true
+      
+      # Performance Configuration
+      - key: ENABLE_COMPRESSION
+        value: true
+      
+      - key: ENABLE_CACHE
+        value: true
+      
+      - key: CACHE_TTL
+        value: 3600  # 1 hour
+      
+      # CORS Configuration (adjust domains as needed)
+      - key: CORS_ORIGIN
+        value: https://your-beast-server.onrender.com
+      
+      # Health Check Configuration
+      - key: HEALTH_CHECK_ENABLED
+        value: true
+      
+      # Database Configuration (if using external database)
+      # - key: DATABASE_URL
+      #   fromDatabase:
+      #     name: beast-database
+      #     property: connectionString
+      
+      # Custom Environment Variables (uncomment and modify as needed)
+      # - key: CUSTOM_ORGANIZATION_NAME
+      #   value: Your Organization
+      # 
+      # - key: CUSTOM_ADMIN_EMAIL
+      #   value: admin@yourcompany.com
+    
+    # Health check endpoint
+    healthCheckPath: /health
+    
+    # Domains (configure your custom domain here)
+    # domains:
+    #   - your-custom-domain.com
+    #   - www.your-custom-domain.com
+
+# Optional: Database service (uncomment if needed)
+# databases:
+#   - name: beast-database
+#     databaseName: beast
+#     user: beast_user
+#     plan: starter  # or standard/pro for production
+
+# Optional: Redis service for caching (uncomment if needed)
+# services:
+#   - type: redis
+#     name: beast-redis
+#     plan: starter
+#     maxmemoryPolicy: allkeys-lru

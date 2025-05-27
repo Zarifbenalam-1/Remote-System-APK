@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Identity -->
+    <string name="app_name">Harvard Remote System</string>
+    <string name="app_version">v1.0.0</string>
+    <string name="app_description">Remote Device Management for Harvard Admission</string>
+    
+    <!-- Connection Status -->
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_error">Connection Error</string>
+    <string name="status_retrying">Retrying Connection</string>
+    
+    <!-- Service Status Messages -->
+    <string name="service_status_initial">Remote service initializing</string>
+    <string name="service_running">Remote service active</string>
+    <string name="service_stopped">Remote service stopped</string>
+    <string name="service_starting">Starting remote service…</string>
+    <string name="service_stopping">Stopping remote service…</string>
+    
+    <!-- Error Messages -->
+    <string name="error_network_unavailable">Network connection unavailable</string>
+    <string name="error_server_unreachable">Cannot reach remote server</string>
+    <string name="error_permission_denied">Permission denied for requested operation</string>
+    <string name="error_command_failed">Command execution failed</string>
+    <string name="error_invalid_request">Invalid request received</string>
+    <string name="error_timeout">Operation timed out</string>
+    <string name="error_unknown">An unexpected error occurred</string>
+    
+    <!-- Permission Messages -->
+    <string name="permission_camera_required">Camera access required for screen capture</string>
+    <string name="permission_location_required">Location access required for GPS tracking</string>
+    <string name="permission_sms_required">SMS access required for message management</string>
+    <string name="permission_storage_required">Storage access required for file operations</string>
+    <string name="permission_phone_required">Phone access required for call management</string>
+    <string name="permission_audio_required">Audio access required for recording</string>
+    <string name="permission_denied_message">Some features may not work without required permissions</string>
+    
+    <!-- Command Responses -->
+    <string name="cmd_device_info_success">Device information retrieved</string>
+    <string name="cmd_location_success">Location data retrieved</string>
+    <string name="cmd_apps_success">Application list retrieved</string>
+    <string name="cmd_camera_success">Camera operation completed</string>
+    <string name="cmd_files_success">File operation completed</string>
+    <string name="cmd_sms_success">SMS data retrieved</string>
+    <string name="cmd_wifi_success">WiFi information retrieved</string>
+    <string name="cmd_audio_success">Audio recording completed</string>
+    <string name="cmd_screen_success">Screen capture completed</string>
+    
+    <!-- Network Status -->
+    <string name="network_wifi_connected">Connected to WiFi</string>
+    <string name="network_mobile_connected">Connected to mobile data</string>
+    <string name="network_no_connection">No network connection</string>
+    
+    <!-- Security Messages -->
+    <string name="security_device_registered">Device registered securely</string>
+    <string name="security_connection_encrypted">Connection encrypted</string>
+    <string name="security_unauthorized">Unauthorized access attempt</string>
+    
+    <!-- Server Connection -->
+    <string name="server_connecting">Connecting to Harvard server…</string>
+    <string name="server_connected">Connected to Harvard server</string>
+    <string name="server_disconnected">Disconnected from server</string>
+    <string name="server_registration_success">Device registered with Harvard system</string>
+    <string name="server_registration_failed">Failed to register device</string>
+    
+    <!-- Notifications -->
+    <string name="notification_service_running">Harvard Remote System is active</string>
+    <string name="notification_service_connected">Connected to Harvard server</string>
+    <string name="notification_service_disconnected">Disconnected from server</string>
+    <string name="notification_channel_name">Remote System Service</string>
+    <string name="notification_channel_description">Harvard Remote System background service</string>
+    
+    <!-- Professional UI Text -->
+    <string name="ui_device_id">Device ID:</string>
+    <string name="ui_server_status">Server Status:</string>
+    <string name="ui_connection_time">Connected Since:</string>
+    <string name="ui_last_command">Last Command:</string>
+    <string name="ui_system_ready">System Ready</string>
+    <string name="ui_awaiting_commands">Awaiting commands…</string>
+    
+    <!-- Legacy (for compatibility) -->
+    <string name="start_service">Start Service</string>
+    <string name="stop_service">Stop Service</string>
+</resources>

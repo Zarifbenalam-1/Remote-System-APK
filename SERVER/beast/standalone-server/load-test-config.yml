@@ -1,0 +1,386 @@
+# =============================================================================
+# ENTERPRISE REMOTE DEVICE MANAGEMENT SERVER - LOAD TESTING CONFIGURATION
+# =============================================================================
+# Artillery.js configuration for comprehensive load testing of the Remote Device
+# Management Server including WebSocket connections, API endpoints, and authentication.
+#
+# Install Artillery: npm install -g artillery
+# Run tests: artillery run load-test-config.yml
+# =============================================================================
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Warm-up phase: Gradually increase load
+    - duration: 60
+      arrivalRate: 1
+      name: "Warm-up phase"
+    
+    # Ramp-up phase: Simulate gradual user increase
+    - duration: 300
+      arrivalRate: 2
+      rampTo: 10
+      name: "Ramp-up phase"
+    
+    # Sustained load phase: Peak traffic simulation
+    - duration: 600
+      arrivalRate: 10
+      name: "Sustained load phase"
+    
+    # Spike test phase: Sudden load increase
+    - duration: 120
+      arrivalRate: 50
+      name: "Spike test phase"
+    
+    # Cool-down phase: Gradual decrease
+    - duration: 180
+      arrivalRate: 10
+      rampTo: 1
+      name: "Cool-down phase"
+
+  # Global configuration
+  processor: "./load-test-functions.js"
+  
+  # Default HTTP settings
+  http:
+    timeout: 30
+    keepAlive: true
+    pool: 10
+  
+  # WebSocket configuration
+  ws:
+    rejectUnauthorized: false
+  
+  # Payload configuration
+  payload:
+    # Load device data from CSV
+    path: "./test-data/devices.csv"
+    fields:
+      - "deviceId"
+      - "deviceName"
+      - "model"
+      - "androidVersion"
+    order: sequence
+    cast: false
+  
+  # Variables for dynamic content
+  variables:
+    deviceTypes:
+      - "Samsung Galaxy S23"
+      - "Google Pixel 7"
+      - "OnePlus 11"
+      - "Xiaomi 13"
+      - "iPhone 14 Pro"
+    
+    androidVersions:
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+    
+    capabilities:
+      - ["camera", "gps", "sms"]
+      - ["camera", "gps", "sms", "files"]
+      - ["camera", "gps", "sms", "files", "sensors"]
+      - ["camera", "gps", "sms", "files", "sensors", "notifications"]
+
+  # Plugins for advanced metrics
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+    publish-metrics:
+      - type: statsd
+        host: localhost
+        port: 8125
+        prefix: "artillery.remote_device_server"
+
+# =============================================================================
+# TEST SCENARIOS
+# =============================================================================
+
+scenarios:
+  # ---------------------------------------------------------------------------
+  # AUTHENTICATION API TESTING
+  # ---------------------------------------------------------------------------
+  - name: "Authentication API Load Test"
+    weight: 20
+    flow:
+      # Generate device token
+      - post:
+          url: "/api/auth/device-token"
+          headers:
+            Content-Type: "application/json"
+          json:
+            deviceId: "device-{{ $randomString() }}"
+            deviceName: "{{ $randomString() }} Device"
+            model: "{{ deviceTypes[$randomInt(0, 4)] }}"
+            androidVersion: "{{ androidVersions[$randomInt(0, 3)] }}"
+            capabilities: "{{ capabilities[$randomInt(0, 3)] }}"
+          capture:
+            - json: "$.token"
+              as: "deviceToken"
+          expect:
+            - statusCode: 200
+            - hasProperty: "token"
+      
+      # Generate client token
+      - post:
+          url: "/api/auth/client-token"
+          headers:
+            Content-Type: "application/json"
+          json:
+            clientId: "client-{{ $randomString() }}"
+            clientName: "{{ $randomString() }} Client"
+            platform: "Windows 11"
+            version: "1.0.0"
+          capture:
+            - json: "$.token"
+              as: "clientToken"
+          expect:
+            - statusCode: 200
+            - hasProperty: "token"
+
+  # ---------------------------------------------------------------------------
+  # HEALTH CHECK TESTING
+  # ---------------------------------------------------------------------------
+  - name: "Health Check Load Test"
+    weight: 10
+    flow:
+      # Basic health check
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"
+      
+      # Detailed health check
+      - get:
+          url: "/health/detailed"
+          expect:
+            - statusCode: 200
+            - hasProperty: "services"
+      
+      # Readiness probe
+      - get:
+          url: "/ready"
+          expect:
+            - statusCode: 200
+            - hasProperty: "ready"
+      
+      # Metrics endpoint
+      - get:
+          url: "/metrics"
+          expect:
+            - statusCode: 200
+
+  # ---------------------------------------------------------------------------
+  # DEVICE MANAGEMENT API TESTING
+  # ---------------------------------------------------------------------------
+  - name: "Device Management API Load Test"
+    weight: 15
+    flow:
+      # Get authentication token first
+      - post:
+          url: "/api/auth/device-token"
+          headers:
+            Content-Type: "application/json"
+          json:
+            deviceId: "load-test-device-{{ $randomString() }}"
+            deviceName: "Load Test Device"
+            model: "Test Device Model"
+            androidVersion: "13"
+            capabilities: ["camera", "gps", "sms"]
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # Get device list
+      - get:
+          url: "/api/devices"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      # Get server status
+      - get:
+          url: "/api/status"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "connectedDevices"
+
+  # ---------------------------------------------------------------------------
+  # FILE UPLOAD TESTING
+  # ---------------------------------------------------------------------------
+  - name: "File Upload Load Test"
+    weight: 5
+    flow:
+      # Generate authentication token
+      - post:
+          url: "/api/auth/device-token"
+          headers:
+            Content-Type: "application/json"
+          json:
+            deviceId: "upload-test-{{ $randomString() }}"
+            deviceName: "Upload Test Device"
+            model: "Test Model"
+            androidVersion: "13"
+            capabilities: ["files"]
+          capture:
+            - json: "$.token"
+              as: "uploadToken"
+      
+      # Upload small test file
+      - post:
+          url: "/api/upload"
+          headers:
+            Authorization: "Bearer {{ uploadToken }}"
+          beforeRequest: "generateTestFile"
+          formData:
+            file: "@test-file.txt"
+          expect:
+            - statusCode: 200
+            - hasProperty: "filename"
+
+  # ---------------------------------------------------------------------------
+  # WEBSOCKET CONNECTION TESTING
+  # ---------------------------------------------------------------------------
+  - name: "WebSocket Device Connection Test"
+    weight: 25
+    engine: ws
+    flow:
+      # Generate device token first
+      - function: "generateDeviceToken"
+      
+      # Connect with authentication
+      - connect:
+          url: "ws://localhost:3000/socket.io/?EIO=4&transport=websocket"
+          headers:
+            Authorization: "Bearer {{ deviceToken }}"
+      
+      # Send device registration
+      - send:
+          payload: '42["device_register",{"deviceId":"ws-device-{{ $randomString() }}","name":"WebSocket Test Device","model":"Test Model","androidVersion":"13","capabilities":["camera","gps","sms"]}]'
+      
+      # Wait for registration confirmation
+      - think: 2
+      
+      # Send periodic heartbeat
+      - loop:
+          - send: "2"
+          - think: 5
+        count: 10
+      
+      # Disconnect
+      - send: "41"
+
+  # ---------------------------------------------------------------------------
+  # WEBSOCKET CLIENT CONNECTION TEST
+  # ---------------------------------------------------------------------------
+  - name: "WebSocket Client Connection Test"
+    weight: 15
+    engine: ws
+    flow:
+      # Generate client token
+      - function: "generateClientToken"
+      
+      # Connect with authentication
+      - connect:
+          url: "ws://localhost:3000/socket.io/?EIO=4&transport=websocket"
+          headers:
+            Authorization: "Bearer {{ clientToken }}"
+      
+      # Send client registration
+      - send:
+          payload: '42["client_register",{"clientId":"ws-client-{{ $randomString() }}","name":"WebSocket Test Client","platform":"Windows 11","version":"1.0.0"}]'
+      
+      # Wait for registration
+      - think: 2
+      
+      # Request device list
+      - send:
+          payload: '42["get_devices",{}]'
+      
+      # Send test commands
+      - loop:
+          - send:
+              payload: '42["device_command",{"deviceId":"test-device","command":{"command":"get_info","params":{}}}]'
+          - think: 3
+        count: 5
+      
+      # Disconnect
+      - send: "41"
+
+  # ---------------------------------------------------------------------------
+  # MIXED WORKLOAD SIMULATION
+  # ---------------------------------------------------------------------------
+  - name: "Mixed Workload Simulation"
+    weight: 10
+    flow:
+      # Randomly choose between different operations
+      - function: "randomWorkload"
+
+# =============================================================================
+# PERFORMANCE EXPECTATIONS
+# =============================================================================
+
+# Expected performance thresholds
+# These values should be adjusted based on your infrastructure
+
+expectations:
+  # HTTP response times
+  - http.response_time.p95: 500    # 95th percentile under 500ms
+  - http.response_time.p99: 1000   # 99th percentile under 1s
+  
+  # Success rates
+  - http.codes.200: 95             # At least 95% success rate
+  - http.codes.500: 1              # Less than 1% server errors
+  
+  # WebSocket metrics
+  - ws.messages_sent: 1000         # Minimum messages sent
+  - ws.connection_time.p95: 100    # 95th percentile connection time under 100ms
+
+# =============================================================================
+# CUSTOM METRICS COLLECTION
+# =============================================================================
+
+# Custom metrics to track business-specific KPIs
+metrics:
+  # Authentication metrics
+  - name: "device_registrations"
+    expression: "http.codes.200"
+    aggregate: "count"
+    tags:
+      endpoint: "/api/auth/device-token"
+  
+  # Connection metrics
+  - name: "websocket_connections"
+    expression: "ws.connections"
+    aggregate: "count"
+  
+  # File upload metrics
+  - name: "file_uploads"
+    expression: "http.codes.200"
+    aggregate: "count"
+    tags:
+      endpoint: "/api/upload"
+
+# =============================================================================
+# REPORTING CONFIGURATION
+# =============================================================================
+
+# Output detailed reports
+reporting:
+  # Console output
+  console:
+    format: "compact"
+  
+  # JSON report for CI/CD
+  json:
+    output: "./reports/load-test-results.json"
+  
+  # HTML report for visualization
+  html:
+    output: "./reports/load-test-report.html"

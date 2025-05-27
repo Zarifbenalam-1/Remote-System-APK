@@ -1,0 +1,270 @@
+# =============================================================================
+# ENTERPRISE REMOTE DEVICE MANAGEMENT SERVER - DOCKER COMPOSE
+# =============================================================================
+# Production-ready Docker Compose configuration for the Remote Device 
+# Management Server with Redis, monitoring, and load balancing.
+#
+# Usage:
+#   Development:  docker-compose up
+#   Production:   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# =============================================================================
+
+version: '3.8'
+
+# =============================================================================
+# SERVICES DEFINITION
+# =============================================================================
+
+services:
+  
+  # ---------------------------------------------------------------------------
+  # REDIS CLUSTER (Required for server clustering and queuing)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: remote-device-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    networks:
+      - remote-device-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    sysctls:
+      - net.core.somaxconn=65535
+    ulimits:
+      memlock: -1
+
+  # ---------------------------------------------------------------------------
+  # REMOTE DEVICE SERVER (Main application)
+  # ---------------------------------------------------------------------------
+  remote-device-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - NODE_ENV=production
+    container_name: remote-device-server-main
+    restart: unless-stopped
+    ports:
+      - "3000:3000"      # Main server port
+      - "9090:9090"      # Metrics port
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CLUSTER_WORKERS=auto
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - ENABLE_CLUSTERING=true
+      - ENABLE_RATE_LIMITING=true
+      - ENABLE_METRICS=true
+      - ENABLE_CIRCUIT_BREAKER=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - METRICS_PORT=9090
+    volumes:
+      - uploads_data:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - remote-device-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # NGINX LOAD BALANCER (For production scaling)
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: remote-device-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - remote-device-server
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - remote-device-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # PROMETHEUS METRICS COLLECTOR
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: remote-device-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - remote-device-network
+    depends_on:
+      - remote-device-server
+
+  # ---------------------------------------------------------------------------
+  # GRAFANA MONITORING DASHBOARD
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: remote-device-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - remote-device-network
+    depends_on:
+      - prometheus
+
+  # ---------------------------------------------------------------------------
+  # REDIS COMMANDER (Redis GUI - Development only)
+  # ---------------------------------------------------------------------------
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: remote-device-redis-gui
+    restart: unless-stopped
+    profiles:
+      - dev  # Only start with --profile dev
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=redis:redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    networks:
+      - remote-device-network
+    depends_on:
+      - redis
+
+# =============================================================================
+# VOLUMES DEFINITION
+# =============================================================================
+
+volumes:
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/redis
+  
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/prometheus
+  
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana
+  
+  uploads_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./uploads
+
+# =============================================================================
+# NETWORKS DEFINITION
+# =============================================================================
+
+networks:
+  remote-device-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+
+# =============================================================================
+# PRODUCTION OVERRIDES (docker-compose.prod.yml)
+# =============================================================================
+
+# To use production configuration:
+# 1. Create docker-compose.prod.yml with production-specific overrides
+# 2. Run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Example docker-compose.prod.yml:
+#
+# version: '3.8'
+# services:
+#   remote-device-server:
+#     deploy:
+#       replicas: 3
+#       restart_policy:
+#         condition: on-failure
+#         delay: 5s
+#         max_attempts: 3
+#     environment:
+#       - LOG_LEVEL=warn
+#       - RATE_LIMIT_MAX_REQUESTS=200
+#   
+#   redis:
+#     deploy:
+#       replicas: 1
+#       resources:
+#         limits:
+#           cpus: '1.0'
+#           memory: 512M
+#   
+#   redis-commander:
+#     profiles:
+#       - never  # Disable in production
