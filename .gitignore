@@ -4,9 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Firebase service account (sensitive)
-firebase-service-account.json
-
 # Build outputs
 *.apk
 *.aab
