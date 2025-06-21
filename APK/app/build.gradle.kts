@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -49,6 +50,10 @@ dependencies {
     
     // LocalBroadcastManager for status updates
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
+    // Firebase - Ghost Resurrection System
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     // Compose libraries
     implementation(libs.androidx.activity.compose)

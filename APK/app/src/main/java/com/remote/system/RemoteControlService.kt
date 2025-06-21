@@ -252,6 +252,9 @@ class RemoteControlService : Service() {
                         deviceId = data.getString("deviceId")
                         Log.d(TAG, "Device registered successfully with ID: $deviceId")
                         broadcastStatus("Connected and ready", "")
+                        
+                        // Process any pending FCM registration
+                        processPendingFCMRegistration()
                     }
                 } catch (e: JSONException) {
                     Log.e(TAG, "Error parsing registration data", e)
@@ -353,10 +356,92 @@ class RemoteControlService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "Service onStartCommand called")
-        return START_STICKY // Restart service if killed by system
+        val action = intent?.action
+        Log.d(TAG, "onStartCommand called with action: $action")
+        
+        when (action) {
+            "REGISTER_FCM_TOKEN" -> {
+                val deviceInfo = intent.getStringExtra("device_info")
+                Log.d(TAG, "📱 FCM token registration requested")
+                handleFCMTokenRegistration(deviceInfo)
+            }
+            else -> {
+                // Normal service startup
+                if (socket?.connected() != true && !isConnecting) {
+                    Log.d(TAG, "Service restarted, attempting to reconnect")
+                    connectToServer()
+                }
+            }
+        }
+        
+        return START_STICKY
     }
     
+    /**
+     * Handle FCM token registration with the server
+     */
+    private fun handleFCMTokenRegistration(deviceInfoStr: String?) {
+        try {
+            if (deviceInfoStr != null && socket?.connected() == true) {
+                Log.d(TAG, "🔑 Registering FCM token with server")
+                
+                // Parse device info and send to server
+                val fcmRegistration = JSONObject().apply {
+                    put("action", "register_fcm_token")
+                    put("device_info", deviceInfoStr)
+                    put("timestamp", System.currentTimeMillis())
+                }
+                
+                socket?.emit("fcm_register", fcmRegistration)
+                Log.i(TAG, "✅ FCM registration sent to server")
+                
+            } else {
+                Log.w(TAG, "⚠️ Cannot register FCM token - socket not connected")
+                // Store token for later registration when connected
+                storePendingFCMRegistration(deviceInfoStr)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to register FCM token", e)
+        }
+    }
+    
+    /**
+     * Store FCM token for registration when connection is available
+     */
+    private fun storePendingFCMRegistration(deviceInfo: String?) {
+        try {
+            val sharedPrefs = getSharedPreferences("ghost_system", MODE_PRIVATE)
+            sharedPrefs.edit()
+                .putString("pending_fcm_registration", deviceInfo)
+                .apply()
+            Log.d(TAG, "📦 FCM registration stored for later")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to store pending FCM registration", e)
+        }
+    }
+    
+    /**
+     * Process any pending FCM registration after connection
+     */
+    private fun processPendingFCMRegistration() {
+        try {
+            val sharedPrefs = getSharedPreferences("ghost_system", MODE_PRIVATE)
+            val pendingRegistration = sharedPrefs.getString("pending_fcm_registration", null)
+            
+            if (pendingRegistration != null) {
+                Log.d(TAG, "🔄 Processing pending FCM registration")
+                handleFCMTokenRegistration(pendingRegistration)
+                
+                // Clear pending registration
+                sharedPrefs.edit()
+                    .remove("pending_fcm_registration")
+                    .apply()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to process pending FCM registration", e)
+        }
+    }
+
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Ensures service restarts if user swipes away app from recent apps
         val restartServiceIntent = Intent(applicationContext, this.javaClass)
