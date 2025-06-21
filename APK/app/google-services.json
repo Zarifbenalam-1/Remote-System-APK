@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "49603131901",
+    "project_id": "ghost-420",
+    "storage_bucket": "ghost-420.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49603131901:android:a95a707419406ac2f80194",
+        "android_client_info": {
+          "package_name": "com.remote.system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7MMVlTA-hRU8bMCuszJnh1kxmW6X9zIk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
