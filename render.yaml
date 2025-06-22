@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ghost-squared
+    env: node
+    buildCommand: cd SERVER/simple-server && npm install
+    startCommand: cd SERVER/simple-server && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/status

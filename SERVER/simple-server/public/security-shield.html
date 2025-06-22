@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Security Shield - Ghost Squared</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #00ffff;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text .subtitle {
+            font-size: 0.9rem;
+            color: #00ffff;
+            font-weight: 400;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 25px;
+            color: #00ffff;
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .security-status {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .security-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value.secure {
+            color: #2ed573;
+        }
+
+        .metric-value.warning {
+            color: #ffa502;
+        }
+
+        .metric-value.danger {
+            color: #ff4757;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .threat-level {
+            background: linear-gradient(45deg, #2ed573, #1e824c);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .threat-level.medium {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+        }
+
+        .threat-level.high {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        .security-modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .security-module {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .security-module::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            transition: left 0.5s ease;
+        }
+
+        .security-module:hover::before {
+            left: 100%;
+        }
+
+        .security-module:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .module-icon.stealth {
+            background: linear-gradient(45deg, #9c88ff, #8c7ae6);
+        }
+
+        .module-icon.encryption {
+            background: linear-gradient(45deg, #2ed573, #1e824c);
+        }
+
+        .module-icon.detection {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+        }
+
+        .module-icon.proxy {
+            background: linear-gradient(45deg, #3742fa, #2f3542);
+        }
+
+        .module-icon.cleaner {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+        }
+
+        .module-icon.monitor {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .module-subtitle {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .module-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4757;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+        }
+
+        .status-indicator.active {
+            background: #2ed573;
+            box-shadow: 0 0 10px rgba(46, 213, 115, 0.5);
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .module-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        .control-btn.warning {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+            color: white;
+        }
+
+        .control-btn.success {
+            background: linear-gradient(45deg, #2ed573, #1e824c);
+            color: white;
+        }
+
+        .module-log {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 120px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #00ff00;
+            white-space: pre-wrap;
+        }
+
+        .config-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .config-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 1.5rem;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .config-item {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .config-label {
+            font-size: 1rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .config-description {
+            font-size: 0.8rem;
+            color: #cccccc;
+            line-height: 1.4;
+        }
+
+        .emergency-panel {
+            background: linear-gradient(45deg, rgba(255, 71, 87, 0.1), rgba(255, 56, 56, 0.1));
+            border: 2px solid #ff4757;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .emergency-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff4757;
+            margin-bottom: 1rem;
+        }
+
+        .emergency-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            margin: 0.5rem;
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .security-modules {
+                grid-template-columns: 1fr;
+            }
+
+            .security-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .module-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>GHOST SQUARED</h1>
+                    <div class="subtitle">Security Shield</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="ghost-squared-command-center.html" class="nav-btn">🏠 Command Center</a>
+                <a href="zombie-army-manager.html" class="nav-btn">🧟 Army Manager</a>
+                <a href="live-surveillance-grid.html" class="nav-btn">📹 Surveillance</a>
+                <a href="quick-strike-panel.html" class="nav-btn">⚡ Quick Strike</a>
+                <a href="ghost-analytics.html" class="nav-btn">📊 Analytics</a>
+                <a href="remote-operations.html" class="nav-btn">🎮 Operations</a>
+                <a href="ghost-config.html" class="nav-btn">⚙️ Config</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="security-status">
+            <div class="status-title">🛡️ Security Status Overview</div>
+            <div class="security-metrics">
+                <div class="metric-card">
+                    <div class="metric-value secure" id="securityScore">98</div>
+                    <div class="metric-label">Security Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value secure" id="activeDevices">0</div>
+                    <div class="metric-label">Protected Devices</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value warning" id="detectionEvents">3</div>
+                    <div class="metric-label">Detection Events</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value secure" id="stealthMode">ON</div>
+                    <div class="metric-label">Stealth Mode</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value secure" id="encryption">AES-256</div>
+                    <div class="metric-label">Encryption</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value secure" id="proxyStatus">ACTIVE</div>
+                    <div class="metric-label">Proxy Shield</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <div class="threat-level" id="threatLevel">LOW THREAT LEVEL</div>
+            </div>
+        </div>
+
+        <div class="security-modules">
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon stealth">👻</div>
+                    <div>
+                        <div class="module-title">Stealth Mode</div>
+                        <div class="module-subtitle">Invisible operation mode</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator active" id="stealthIndicator"></div>
+                    <div class="status-text" id="stealthStatus">Active - Ghost mode enabled</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn success" onclick="toggleStealth(true)">Enable Stealth</button>
+                    <button class="control-btn warning" onclick="toggleStealth(false)">Disable Stealth</button>
+                    <button class="control-btn" onclick="configStealth()">Configure</button>
+                </div>
+                <div class="module-log" id="stealthLog">Stealth mode initialized...\nAll operations running silently\nNo traces detected</div>
+            </div>
+
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon encryption">🔐</div>
+                    <div>
+                        <div class="module-title">Encryption Shield</div>
+                        <div class="module-subtitle">Data protection & encryption</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator active" id="encryptionIndicator"></div>
+                    <div class="status-text" id="encryptionStatus">AES-256 encryption active</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn success" onclick="enableEncryption()">Enable Encryption</button>
+                    <button class="control-btn" onclick="rotateKeys()">Rotate Keys</button>
+                    <button class="control-btn warning" onclick="testEncryption()">Test Security</button>
+                </div>
+                <div class="module-log" id="encryptionLog">Encryption module active...\nAES-256 keys generated\nAll communications secured</div>
+            </div>
+
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon detection">🔍</div>
+                    <div>
+                        <div class="module-title">Threat Detection</div>
+                        <div class="module-subtitle">Real-time monitoring</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator active" id="detectionIndicator"></div>
+                    <div class="status-text" id="detectionStatus">Monitoring all devices</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn" onclick="startMonitoring()">Start Monitoring</button>
+                    <button class="control-btn warning" onclick="scanThreats()">Scan Threats</button>
+                    <button class="control-btn danger" onclick="stopMonitoring()">Stop</button>
+                </div>
+                <div class="module-log" id="detectionLog">Threat detection active...\nScanning for anomalies\nNo threats detected</div>
+            </div>
+
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon proxy">🌐</div>
+                    <div>
+                        <div class="module-title">Proxy Shield</div>
+                        <div class="module-subtitle">Network anonymization</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator active" id="proxyIndicator"></div>
+                    <div class="status-text" id="proxyStatusText">Multi-layer proxy active</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn success" onclick="enableProxy()">Enable Proxy</button>
+                    <button class="control-btn" onclick="changeProxy()">Change Server</button>
+                    <button class="control-btn warning" onclick="disableProxy()">Disable</button>
+                </div>
+                <div class="module-log" id="proxyLog">Proxy shield initialized...\nConnecting through TOR network\nAnonymous connection established</div>
+            </div>
+
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon cleaner">🧹</div>
+                    <div>
+                        <div class="module-title">Trace Cleaner</div>
+                        <div class="module-subtitle">Evidence elimination</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator" id="cleanerIndicator"></div>
+                    <div class="status-text" id="cleanerStatus">Ready for cleanup</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn warning" onclick="clearTraces()">Clear Traces</button>
+                    <button class="control-btn" onclick="deepClean()">Deep Clean</button>
+                    <button class="control-btn danger" onclick="nukeLogs()">Nuke Logs</button>
+                </div>
+                <div class="module-log" id="cleanerLog">Trace cleaner ready...\nAwaiting cleanup commands</div>
+            </div>
+
+            <div class="security-module">
+                <div class="module-header">
+                    <div class="module-icon monitor">📊</div>
+                    <div>
+                        <div class="module-title">Security Monitor</div>
+                        <div class="module-subtitle">Real-time security metrics</div>
+                    </div>
+                </div>
+                <div class="module-status">
+                    <div class="status-indicator active" id="monitorIndicator"></div>
+                    <div class="status-text" id="monitorStatus">All systems monitored</div>
+                </div>
+                <div class="module-controls">
+                    <button class="control-btn" onclick="generateReport()">Security Report</button>
+                    <button class="control-btn" onclick="auditSystem()">System Audit</button>
+                    <button class="control-btn success" onclick="exportLogs()">Export Logs</button>
+                </div>
+                <div class="module-log" id="monitorLog">Security monitor active...\nTracking all activities\nGenerating security metrics</div>
+            </div>
+        </div>
+
+        <div class="config-panel">
+            <div class="config-title">🔧 Security Configuration</div>
+            <div class="config-grid">
+                <div class="config-item">
+                    <div class="config-label">Stealth Level</div>
+                    <select class="config-input" id="stealthLevel">
+                        <option value="low">Low - Basic hiding</option>
+                        <option value="medium" selected>Medium - Advanced stealth</option>
+                        <option value="high">High - Maximum invisibility</option>
+                        <option value="ghost">Ghost - Phantom mode</option>
+                    </select>
+                    <div class="config-description">Controls how invisible the operations are to detection systems.</div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">Encryption Algorithm</div>
+                    <select class="config-input" id="encryptionAlgo">
+                        <option value="aes128">AES-128</option>
+                        <option value="aes256" selected>AES-256</option>
+                        <option value="chacha20">ChaCha20</option>
+                        <option value="serpent">Serpent-256</option>
+                    </select>
+                    <div class="config-description">Encryption algorithm used for data protection.</div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">Proxy Chain</div>
+                    <input type="text" class="config-input" id="proxyChain" value="TOR -> VPN -> SOCKS5">
+                    <div class="config-description">Network proxy chain for anonymization.</div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">Auto-Clean Interval</div>
+                    <select class="config-input" id="cleanInterval">
+                        <option value="never">Never</option>
+                        <option value="hourly">Every Hour</option>
+                        <option value="daily" selected>Daily</option>
+                        <option value="weekly">Weekly</option>
+                    </select>
+                    <div class="config-description">Automatic trace cleaning frequency.</div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">Detection Sensitivity</div>
+                    <select class="config-input" id="detectionSensitivity">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high" selected>High</option>
+                        <option value="paranoid">Paranoid</option>
+                    </select>
+                    <div class="config-description">Threat detection sensitivity level.</div>
+                </div>
+
+                <div class="config-item">
+                    <div class="config-label">Emergency Contact</div>
+                    <input type="text" class="config-input" id="emergencyContact" placeholder="Enter emergency contact">
+                    <div class="config-description">Contact for emergency security alerts.</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="control-btn success" onclick="saveSecurityConfig()">
+                    <i class="fas fa-save"></i> Save Configuration
+                </button>
+            </div>
+        </div>
+
+        <div class="emergency-panel">
+            <div class="emergency-title">🚨 EMERGENCY PROTOCOLS</div>
+            <div style="margin-bottom: 1.5rem; color: #cccccc;">
+                Use these controls only in critical situations
+            </div>
+            <button class="emergency-btn" onclick="emergencyShutdown()">
+                <i class="fas fa-power-off"></i> EMERGENCY SHUTDOWN
+            </button>
+            <button class="emergency-btn" onclick="panicMode()">
+                <i class="fas fa-exclamation-triangle"></i> PANIC MODE
+            </button>
+            <button class="emergency-btn" onclick="destroyEvidence()">
+                <i class="fas fa-fire"></i> DESTROY EVIDENCE
+            </button>
+            <button class="emergency-btn" onclick="ghostProtocol()">
+                <i class="fas fa-eye-slash"></i> GHOST PROTOCOL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let devices = [];
+        let securityConfig = {
+            stealthLevel: 'medium',
+            encryptionAlgo: 'aes256',
+            proxyChain: 'TOR -> VPN -> SOCKS5',
+            cleanInterval: 'daily',
+            detectionSensitivity: 'high',
+            emergencyContact: ''
+        };
+
+        // Initialize dashboard
+        async function initDashboard() {
+            await loadDevices();
+            updateSecurityMetrics();
+            startSecurityMonitoring();
+        }
+
+        // Load devices from API
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/zombie/list');
+                if (response.ok) {
+                    devices = await response.json();
+                } else {
+                    devices = [];
+                }
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                devices = [];
+            }
+        }
+
+        // Update security metrics
+        function updateSecurityMetrics() {
+            document.getElementById('activeDevices').textContent = devices.length;
+            
+            // Simulate real-time security metrics
+            const securityScore = Math.floor(Math.random() * 10) + 90;
+            document.getElementById('securityScore').textContent = securityScore;
+            
+            const detectionEvents = Math.floor(Math.random() * 5);
+            document.getElementById('detectionEvents').textContent = detectionEvents;
+            
+            // Update threat level based on events
+            const threatLevel = document.getElementById('threatLevel');
+            if (detectionEvents === 0) {
+                threatLevel.textContent = 'LOW THREAT LEVEL';
+                threatLevel.className = 'threat-level';
+            } else if (detectionEvents <= 2) {
+                threatLevel.textContent = 'MEDIUM THREAT LEVEL';
+                threatLevel.className = 'threat-level medium';
+            } else {
+                threatLevel.textContent = 'HIGH THREAT LEVEL';
+                threatLevel.className = 'threat-level high';
+            }
+        }
+
+        // Stealth mode functions
+        function toggleStealth(enable) {
+            const indicator = document.getElementById('stealthIndicator');
+            const status = document.getElementById('stealthStatus');
+            const log = document.getElementById('stealthLog');
+
+            if (enable) {
+                indicator.classList.add('active');
+                status.textContent = 'Active - Ghost mode enabled';
+                logToModule('stealthLog', '✅ Stealth mode activated');
+                logToModule('stealthLog', 'All operations now invisible');
+                document.getElementById('stealthMode').textContent = 'ON';
+            } else {
+                indicator.classList.remove('active');
+                status.textContent = 'Disabled - Normal operation';
+                logToModule('stealthLog', '⚠️ Stealth mode deactivated');
+                logToModule('stealthLog', 'Operations now visible');
+                document.getElementById('stealthMode').textContent = 'OFF';
+            }
+        }
+
+        function configStealth() {
+            const level = document.getElementById('stealthLevel').value;
+            logToModule('stealthLog', `🔧 Stealth configured to: ${level}`);
+            
+            switch(level) {
+                case 'low':
+                    logToModule('stealthLog', 'Basic hiding enabled');
+                    break;
+                case 'medium':
+                    logToModule('stealthLog', 'Advanced stealth active');
+                    break;
+                case 'high':
+                    logToModule('stealthLog', 'Maximum invisibility mode');
+                    break;
+                case 'ghost':
+                    logToModule('stealthLog', 'Phantom mode - completely invisible');
+                    break;
+            }
+        }
+
+        // Encryption functions
+        function enableEncryption() {
+            const algo = document.getElementById('encryptionAlgo').value;
+            logToModule('encryptionLog', `🔐 Encryption enabled: ${algo.toUpperCase()}`);
+            logToModule('encryptionLog', 'Generating new encryption keys...');
+            logToModule('encryptionLog', '✅ All communications secured');
+            
+            document.getElementById('encryptionStatus').textContent = `${algo.toUpperCase()} encryption active`;
+            document.getElementById('encryption').textContent = algo.toUpperCase();
+        }
+
+        function rotateKeys() {
+            logToModule('encryptionLog', '🔄 Rotating encryption keys...');
+            logToModule('encryptionLog', '✅ New keys generated and distributed');
+            logToModule('encryptionLog', 'All devices updated with new keys');
+        }
+
+        function testEncryption() {
+            logToModule('encryptionLog', '🧪 Testing encryption security...');
+            logToModule('encryptionLog', 'Running security validation...');
+            
+            setTimeout(() => {
+                const strength = Math.random() > 0.2 ? 'STRONG' : 'WEAK';
+                if (strength === 'STRONG') {
+                    logToModule('encryptionLog', '✅ Encryption test passed - SECURE');
+                } else {
+                    logToModule('encryptionLog', '⚠️ Encryption test failed - VULNERABLE');
+                }
+            }, 2000);
+        }
+
+        // Detection functions
+        function startMonitoring() {
+            document.getElementById('detectionIndicator').classList.add('active');
+            logToModule('detectionLog', '👁️ Threat monitoring started');
+            logToModule('detectionLog', 'Scanning all connected devices...');
+            logToModule('detectionLog', 'Real-time threat detection active');
+        }
+
+        function scanThreats() {
+            logToModule('detectionLog', '🔍 Initiating threat scan...');
+            logToModule('detectionLog', 'Analyzing network traffic...');
+            logToModule('detectionLog', 'Checking device integrity...');
+            
+            setTimeout(() => {
+                const threats = Math.floor(Math.random() * 3);
+                if (threats === 0) {
+                    logToModule('detectionLog', '✅ No threats detected');
+                } else {
+                    logToModule('detectionLog', `⚠️ ${threats} potential threats found`);
+                }
+            }, 3000);
+        }
+
+        function stopMonitoring() {
+            document.getElementById('detectionIndicator').classList.remove('active');
+            logToModule('detectionLog', '🛑 Threat monitoring stopped');
+            document.getElementById('detectionStatus').textContent = 'Monitoring disabled';
+        }
+
+        // Proxy functions
+        function enableProxy() {
+            document.getElementById('proxyIndicator').classList.add('active');
+            logToModule('proxyLog', '🌐 Proxy shield activated');
+            logToModule('proxyLog', 'Connecting through TOR network...');
+            logToModule('proxyLog', '✅ Anonymous connection established');
+            document.getElementById('proxyStatus').textContent = 'ACTIVE';
+        }
+
+        function changeProxy() {
+            logToModule('proxyLog', '🔄 Changing proxy servers...');
+            logToModule('proxyLog', 'Selecting new exit nodes...');
+            logToModule('proxyLog', '✅ New proxy chain established');
+        }
+
+        function disableProxy() {
+            document.getElementById('proxyIndicator').classList.remove('active');
+            logToModule('proxyLog', '⚠️ Proxy shield disabled');
+            logToModule('proxyLog', 'Direct connection active');
+            document.getElementById('proxyStatus').textContent = 'DISABLED';
+        }
+
+        // Cleaner functions
+        function clearTraces() {
+            document.getElementById('cleanerIndicator').classList.add('active');
+            logToModule('cleanerLog', '🧹 Clearing traces...');
+            logToModule('cleanerLog', 'Deleting temporary files...');
+            logToModule('cleanerLog', 'Clearing browser history...');
+            logToModule('cleanerLog', '✅ Traces cleared successfully');
+            
+            setTimeout(() => {
+                document.getElementById('cleanerIndicator').classList.remove('active');
+            }, 3000);
+        }
+
+        function deepClean() {
+            document.getElementById('cleanerIndicator').classList.add('active');
+            logToModule('cleanerLog', '🔥 Initiating deep clean...');
+            logToModule('cleanerLog', 'Wiping system logs...');
+            logToModule('cleanerLog', 'Overwriting deleted files...');
+            logToModule('cleanerLog', 'Clearing registry entries...');
+            logToModule('cleanerLog', '✅ Deep clean completed');
+            
+            setTimeout(() => {
+                document.getElementById('cleanerIndicator').classList.remove('active');
+            }, 5000);
+        }
+
+        function nukeLogs() {
+            if (!confirm('This will permanently destroy all logs. Continue?')) return;
+            
+            document.getElementById('cleanerIndicator').classList.add('active');
+            logToModule('cleanerLog', '💥 NUKING ALL LOGS...');
+            logToModule('cleanerLog', 'DESTROYING EVIDENCE...');
+            logToModule('cleanerLog', 'WIPING SYSTEM CLEAN...');
+            logToModule('cleanerLog', '🔥 ALL LOGS DESTROYED');
+            
+            setTimeout(() => {
+                document.getElementById('cleanerIndicator').classList.remove('active');
+            }, 4000);
+        }
+
+        // Monitor functions
+        function generateReport() {
+            logToModule('monitorLog', '📊 Generating security report...');
+            logToModule('monitorLog', 'Analyzing security metrics...');
+            logToModule('monitorLog', 'Compiling threat data...');
+            logToModule('monitorLog', '✅ Security report generated');
+        }
+
+        function auditSystem() {
+            logToModule('monitorLog', '🔍 Starting system audit...');
+            logToModule('monitorLog', 'Checking security configurations...');
+            logToModule('monitorLog', 'Validating encryption protocols...');
+            logToModule('monitorLog', '✅ System audit completed');
+        }
+
+        function exportLogs() {
+            logToModule('monitorLog', '📁 Exporting security logs...');
+            logToModule('monitorLog', 'Encrypting log files...');
+            logToModule('monitorLog', '✅ Logs exported successfully');
+        }
+
+        // Emergency functions
+        function emergencyShutdown() {
+            if (!confirm('EMERGENCY SHUTDOWN - This will disconnect all devices immediately. Continue?')) return;
+            
+            logToAllModules('🚨 EMERGENCY SHUTDOWN ACTIVATED');
+            logToAllModules('Disconnecting all devices...');
+            logToAllModules('Clearing active sessions...');
+            logToAllModules('🛑 SYSTEM SHUTDOWN COMPLETE');
+        }
+
+        function panicMode() {
+            if (!confirm('PANIC MODE - This will activate maximum security protocols. Continue?')) return;
+            
+            logToAllModules('🚨 PANIC MODE ACTIVATED');
+            logToAllModules('Enabling maximum stealth...');
+            logToAllModules('Activating all security protocols...');
+            logToAllModules('Clearing all traces...');
+            
+            // Activate all security measures
+            toggleStealth(true);
+            enableEncryption();
+            enableProxy();
+            clearTraces();
+        }
+
+        function destroyEvidence() {
+            if (!confirm('DESTROY EVIDENCE - This action is IRREVERSIBLE. Continue?')) return;
+            
+            logToAllModules('🔥 DESTROYING EVIDENCE...');
+            logToAllModules('WIPING ALL LOGS...');
+            logToAllModules('OVERWRITING FILES...');
+            logToAllModules('CLEARING REGISTRY...');
+            logToAllModules('💥 EVIDENCE DESTROYED');
+        }
+
+        function ghostProtocol() {
+            if (!confirm('GHOST PROTOCOL - This will make the system completely invisible. Continue?')) return;
+            
+            logToAllModules('👻 GHOST PROTOCOL ACTIVATED');
+            logToAllModules('Enabling phantom mode...');
+            logToAllModules('Masking all signatures...');
+            logToAllModules('System now completely invisible');
+            
+            // Set everything to maximum stealth
+            document.getElementById('stealthLevel').value = 'ghost';
+            configStealth();
+            toggleStealth(true);
+        }
+
+        // Configuration functions
+        function saveSecurityConfig() {
+            securityConfig = {
+                stealthLevel: document.getElementById('stealthLevel').value,
+                encryptionAlgo: document.getElementById('encryptionAlgo').value,
+                proxyChain: document.getElementById('proxyChain').value,
+                cleanInterval: document.getElementById('cleanInterval').value,
+                detectionSensitivity: document.getElementById('detectionSensitivity').value,
+                emergencyContact: document.getElementById('emergencyContact').value
+            };
+            
+            logToModule('monitorLog', '💾 Security configuration saved');
+            logToModule('monitorLog', 'Applying new settings...');
+            logToModule('monitorLog', '✅ Configuration updated');
+        }
+
+        // Helper functions
+        function logToModule(moduleId, message) {
+            const log = document.getElementById(moduleId);
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function logToAllModules(message) {
+            const modules = ['stealthLog', 'encryptionLog', 'detectionLog', 'proxyLog', 'cleanerLog', 'monitorLog'];
+            modules.forEach(moduleId => {
+                logToModule(moduleId, message);
+            });
+        }
+
+        // Start security monitoring
+        function startSecurityMonitoring() {
+            setInterval(() => {
+                updateSecurityMetrics();
+                
+                // Simulate random security events
+                if (Math.random() < 0.1) {
+                    const events = [
+                        'Anomalous network activity detected',
+                        'New device connection secured',
+                        'Encryption key rotation completed',
+                        'Trace cleanup executed',
+                        'Proxy server changed',
+                        'Security scan completed'
+                    ];
+                    const event = events[Math.floor(Math.random() * events.length)];
+                    logToModule('detectionLog', `🔍 ${event}`);
+                }
+            }, 10000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

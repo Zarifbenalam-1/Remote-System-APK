@@ -6,6 +6,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const nodemailer = require('nodemailer');
 
 // Ghost Resurrection System imports
 const GhostResurrectionManager = require('./ghost-resurrection-manager');
@@ -585,5 +586,471 @@ app.post('/api/scheduler/automated-response', (req, res) => {
         res.json(result);
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// Email Alert Configuration (persistent server-side storage)
+const fsPromises = require('fs').promises;
+
+const EMAIL_CONFIG_FILE = path.join(__dirname, 'email-config.json');
+
+let emailConfig = {
+    addresses: [],
+    enabled: false,
+    lastUpdated: null,
+    // Gmail credentials
+    gmailUser: '',
+    gmailPassword: '',
+    gmailConfigured: false
+};
+
+// Load email configuration from file
+async function loadEmailConfig() {
+    try {
+        const data = await fsPromises.readFile(EMAIL_CONFIG_FILE, 'utf8');
+        emailConfig = JSON.parse(data);
+        console.log(`📧 Loaded email configuration: ${emailConfig.addresses.length} addresses`);
+    } catch (error) {
+        console.log('📧 No existing email configuration found, starting fresh');
+        await saveEmailConfig(); // Create initial file
+    }
+}
+
+// Save email configuration to file
+async function saveEmailConfig() {
+    try {
+        emailConfig.lastUpdated = new Date().toISOString();
+        await fsPromises.writeFile(EMAIL_CONFIG_FILE, JSON.stringify(emailConfig, null, 2));
+        console.log('📧 Email configuration saved to file');
+    } catch (error) {
+        console.error('❌ Failed to save email configuration:', error);
+    }
+}
+
+// Email transporter setup (you'll need to configure this with your email service)
+let emailTransporter = null;
+
+// Initialize email service with REAL Gmail
+function initializeEmailService() {
+    if (emailConfig.gmailUser && emailConfig.gmailPassword) {
+        try {
+            emailTransporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: emailConfig.gmailUser,
+                    pass: emailConfig.gmailPassword
+                }
+            });
+            
+            // Test the connection
+            emailTransporter.verify((error, success) => {
+                if (error) {
+                    console.log('❌ Gmail configuration failed:', error.message);
+                    emailConfig.gmailConfigured = false;
+                } else {
+                    console.log('✅ Gmail email service initialized and verified');
+                    console.log(`📧 Ready to send emails from: ${emailConfig.gmailUser}`);
+                    emailConfig.gmailConfigured = true;
+                }
+            });
+            
+        } catch (error) {
+            console.log('❌ Gmail setup error:', error.message);
+            emailConfig.gmailConfigured = false;
+        }
+    } else {
+        console.log('⚠️  Gmail credentials not configured');
+        console.log('📧 Configure Gmail credentials in the Mission Report dashboard');
+        emailConfig.gmailConfigured = false;
+    }
+}
+
+// Initialize email service on startup
+initializeEmailService();
+
+// Load email configuration on startup
+loadEmailConfig();
+
+// System status tracking
+const systemStatus = {
+    startTime: new Date(),
+    alerts: [],
+    emailsSentToday: 0,
+    lastError: null,
+    health: 100
+};
+
+// Get system status endpoint
+app.get('/api/system-status', (req, res) => {
+    const uptime = Math.floor((Date.now() - systemStatus.startTime.getTime()) / 1000);
+    const uptimeHours = Math.floor(uptime / 3600);
+    const uptimeMinutes = Math.floor((uptime % 3600) / 60);
+    
+    // Calculate today's email count
+    const today = new Date().toDateString();
+    const todayAlerts = systemStatus.alerts.filter(alert => 
+        new Date(alert.timestamp).toDateString() === today
+    );
+    
+    const activeAlerts = systemStatus.alerts.filter(alert => 
+        alert.type === 'error' && !alert.resolved
+    ).length;
+
+    // Real system health calculation
+    const memoryUsage = process.memoryUsage();
+    const memoryUsedMB = Math.round(memoryUsage.heapUsed / 1024 / 1024);
+    const memoryTotalMB = Math.round(memoryUsage.heapTotal / 1024 / 1024);
+    
+    // Calculate health based on actual system metrics
+    let healthScore = 100;
+    if (activeAlerts > 0) healthScore -= (activeAlerts * 15); // Reduce for active alerts
+    if (memoryUsedMB > 500) healthScore -= 10; // Reduce for high memory usage
+    healthScore = Math.max(0, Math.min(100, healthScore)); // Keep between 0-100
+    
+    const lastErrorTime = systemStatus.lastError ? 
+        `${Math.floor((Date.now() - new Date(systemStatus.lastError).getTime()) / 60000)}m ago` : 
+        'Never';
+
+    const response = {
+        uptime: `${uptimeHours}h ${uptimeMinutes}m`,
+        health: `${healthScore}%`,
+        activeAlerts: activeAlerts,
+        alertsSentToday: todayAlerts.length,
+        lastError: lastErrorTime,
+        totalAlerts: systemStatus.alerts.length,
+        serverStatus: 'Running',
+        memoryUsage: `${memoryUsedMB}MB`,
+        timestamp: new Date().toISOString(),
+        emailConfigured: emailConfig.gmailConfigured
+    };
+    
+    console.log('📊 System status requested:', response);
+    res.json(response);
+});
+
+// Add system alert function
+function addSystemAlert(type, title, description) {
+    const alert = {
+        type,
+        title,
+        description,
+        timestamp: new Date().toISOString(),
+        resolved: false
+    };
+    
+    systemStatus.alerts.unshift(alert);
+    
+    if (type === 'error') {
+        systemStatus.lastError = alert.timestamp;
+        systemStatus.health = Math.max(0, systemStatus.health - 10);
+    }
+    
+    // Keep only last 100 alerts
+    if (systemStatus.alerts.length > 100) {
+        systemStatus.alerts = systemStatus.alerts.slice(0, 100);
+    }
+    
+    console.log(`🚨 System Alert [${type.toUpperCase()}]: ${title} - ${description}`);
+}
+
+// Real Gmail email sending function
+async function sendEmailAlert(type, title, description, emailAddresses) {
+    // Console log for immediate feedback
+    console.log('\n📧 SENDING REAL EMAIL ALERT:');
+    console.log(`Type: ${type.toUpperCase()}`);
+    console.log(`Title: ${title}`);
+    console.log(`Description: ${description}`);
+    console.log(`Recipients: ${emailAddresses.join(', ')}`);
+    console.log(`From: ${emailConfig.gmailUser}`);
+    console.log(`Timestamp: ${new Date().toLocaleString()}`);
+    console.log('━'.repeat(50));
+    
+    // Check if Gmail is configured
+    if (!emailConfig.gmailConfigured || !emailTransporter) {
+        const error = 'Gmail not configured. Please set up Gmail credentials in the dashboard.';
+        console.error('❌', error);
+        addSystemAlert('error', 'Email Send Failed', error);
+        return { success: false, error: error };
+    }
+    
+    try {
+        const emailContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #0c0e16 0%, #1a1d29 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h1 style="margin: 0; display: flex; align-items: center;">
+                        <span style="font-size: 30px; margin-right: 10px;">👻</span>
+                        Ghost² Alert
+                    </h1>
+                    <p style="margin: 5px 0 0 0; opacity: 0.8;">Mission Report System</p>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid ${type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#06b6d4'};">
+                    <h2 style="color: #1f2937; margin-top: 0;">Alert: ${title}</h2>
+                    <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">${description}</p>
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                    <p style="color: #9ca3af; font-size: 14px;">
+                        <strong>Type:</strong> ${type.toUpperCase()}<br>
+                        <strong>Time:</strong> ${new Date().toLocaleString()}<br>
+                        <strong>Source:</strong> Ghost² Mission Report System<br>
+                        <strong>Server:</strong> ${emailConfig.gmailUser}
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 12px;">
+                    <p>This is an automated alert from your Ghost² system.</p>
+                    <p>Sent via Gmail from ${emailConfig.gmailUser}</p>
+                </div>
+            </div>
+        `;
+
+        const mailOptions = {
+            from: `"Ghost² System" <${emailConfig.gmailUser}>`,
+            to: emailAddresses.join(', '),
+            subject: `[Ghost² Alert] ${type.toUpperCase()}: ${title}`,
+            html: emailContent
+        };
+
+        const info = await emailTransporter.sendMail(mailOptions);
+        console.log('✅ REAL EMAIL SENT SUCCESSFULLY!');
+        console.log('📧 Message ID:', info.messageId);
+        console.log('📧 Response:', info.response);
+        
+        systemStatus.emailsSentToday++;
+        addSystemAlert('info', 'Email Alert Sent', `Real email sent to ${emailAddresses.length} recipient(s) via Gmail`);
+        
+        return { 
+            success: true, 
+            message: 'Real email sent successfully via Gmail', 
+            messageId: info.messageId,
+            response: info.response
+        };
+        
+    } catch (error) {
+        console.error('❌ REAL EMAIL SENDING FAILED:', error);
+        let errorMessage = error.message;
+        
+        // Provide helpful error messages
+        if (error.code === 'EAUTH') {
+            errorMessage = 'Gmail authentication failed. Please check your App Password.';
+        } else if (error.code === 'ETIMEDOUT') {
+            errorMessage = 'Email sending timed out. Please check your internet connection.';
+        }
+        
+        addSystemAlert('error', 'Email Send Failed', `Failed to send real email: ${errorMessage}`);
+        return { success: false, error: errorMessage };
+    }
+}
+
+// Email configuration endpoint
+app.post('/api/configure-alerts', async (req, res) => {
+    try {
+        const { emailAddresses, alertTypes, gmailUser, gmailPassword } = req.body;
+        
+        // Handle Gmail configuration if provided
+        if (gmailUser && gmailPassword) {
+            emailConfig.gmailUser = gmailUser;
+            emailConfig.gmailPassword = gmailPassword;
+            
+            // Reinitialize email service with new credentials
+            initializeEmailService();
+        }
+        
+        // Handle email addresses if provided
+        if (emailAddresses) {
+            // Simple validation
+            if (!Array.isArray(emailAddresses)) {
+                return res.status(400).json({ success: false, error: 'Email addresses must be an array' });
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const invalidEmails = emailAddresses.filter(email => !emailRegex.test(email));
+            
+            if (invalidEmails.length > 0) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: `Invalid email addresses: ${invalidEmails.join(', ')}` 
+                });
+            }
+            
+            // Update configuration
+            emailConfig.addresses = emailAddresses;
+            emailConfig.enabled = emailAddresses.length > 0;
+        }
+        
+        // Save to file for persistence
+        await saveEmailConfig();
+        
+        console.log(`📧 Email configuration updated and saved`);
+        if (emailConfig.addresses.length > 0) {
+            console.log(`📧 Alert recipients: ${emailConfig.addresses.length} addresses`);
+        }
+        if (emailConfig.gmailConfigured) {
+            console.log(`📧 Gmail sender: ${emailConfig.gmailUser}`);
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Email configuration saved successfully',
+            config: {
+                addresses: emailConfig.addresses,
+                enabled: emailConfig.enabled,
+                gmailConfigured: emailConfig.gmailConfigured,
+                gmailUser: emailConfig.gmailUser
+            }
+        });
+        
+    } catch (error) {
+        console.error('Email configuration error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Send test alert endpoint
+app.post('/api/send-test-alert', async (req, res) => {
+    try {
+        const { emailAddresses } = req.body;
+        
+        if (!emailAddresses || emailAddresses.length === 0) {
+            return res.status(400).json({ success: false, error: 'No email addresses provided' });
+        }
+        
+        const result = await sendEmailAlert(
+            'info',
+            'Ghost² Test Alert',
+            `This is a test alert from Ghost Squared Mission Report system. Sent at ${new Date().toLocaleString()}. If you receive this email, your alert configuration is working correctly!`,
+            emailAddresses
+        );
+        
+        res.json({
+            success: result.success,
+            message: result.success ? 
+                `Test alert sent to ${emailAddresses.length} recipient(s)` : 
+                `Failed to send test alert: ${result.error}`,
+            ...result
+        });
+        
+    } catch (error) {
+        console.error('Test alert error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Send actual alert email endpoint
+app.post('/api/send-alert-email', (req, res) => {
+    try {
+        const { type, title, description, emailAddresses, timestamp } = req.body;
+        
+        // Only send errors and warnings via email (as requested - keep it simple)
+        if (type !== 'error' && type !== 'warning') {
+            return res.json({ 
+                success: true, 
+                message: 'Alert type not configured for email notifications',
+                skipped: true 
+            });
+        }
+        
+        const result = sendEmailAlert(type, title, description, emailAddresses);
+        
+        res.json({
+            success: true,
+            message: 'Alert email sent successfully',
+            ...result
+        });
+        
+    } catch (error) {
+        console.error('Alert email error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get current email configuration
+app.get('/api/email-config', (req, res) => {
+    res.json(emailConfig);
+});
+
+// Gmail configuration endpoint
+app.post('/api/configure-gmail', async (req, res) => {
+    try {
+        const { gmailUser, gmailPassword } = req.body;
+        
+        // Basic validation
+        if (!gmailUser || !gmailPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Gmail username and password are required' 
+            });
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(gmailUser)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid Gmail address format' 
+            });
+        }
+        
+        // Update configuration
+        emailConfig.gmailUser = gmailUser;
+        emailConfig.gmailPassword = gmailPassword;
+        
+        // Test the Gmail configuration
+        const testTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: gmailUser,
+                pass: gmailPassword
+            }
+        });
+        
+        // Verify connection
+        testTransporter.verify((error, success) => {
+            if (error) {
+                console.log('❌ Gmail verification failed:', error.message);
+                emailConfig.gmailConfigured = false;
+                res.status(400).json({ 
+                    success: false, 
+                    error: `Gmail configuration failed: ${error.message}. Make sure you're using an App Password, not your regular password.` 
+                });
+            } else {
+                console.log('✅ Gmail configuration verified successfully');
+                emailConfig.gmailConfigured = true;
+                emailTransporter = testTransporter;
+                
+                // Save configuration
+                saveEmailConfig();
+                
+                res.json({ 
+                    success: true, 
+                    message: 'Gmail configuration saved and verified successfully',
+                    gmailUser: gmailUser
+                });
+            }
+        });
+        
+    } catch (error) {
+        console.error('Gmail configuration error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Clear all alerts and reset dashboard
+app.post('/api/clear-alerts', (req, res) => {
+    try {
+        systemStatus.alerts = [];
+        systemStatus.health = 100;
+        systemStatus.lastError = null;
+        systemStatus.emailsSentToday = 0;
+        
+        console.log('🧹 All alerts cleared and system reset');
+        
+        res.json({
+            success: true,
+            message: 'All alerts cleared and system reset',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });

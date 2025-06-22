@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Squared - Mission Report</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0e16 0%, #1a1d29 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Ghost Squared Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1d29 0%, #0f1419 100%);
+            border-right: 1px solid #2d3748;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .logo-section {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .ghost-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            animation: ghostPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes ghostPulse {
+            0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); }
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00d4ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            transition: width 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #e2e8f0;
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item:hover::before {
+            width: 3px;
+        }
+
+        .nav-item.active {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.15);
+            border-left-color: #00d4ff;
+        }
+
+        .nav-item.active::before {
+            width: 3px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .top-header {
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2d3748;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00d4ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #10b981;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        /* Email Configuration Panel */
+        .email-config-section {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.8) 0%, rgba(15, 20, 25, 0.9) 100%);
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .config-toggle-btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 8px;
+            color: #0c0e16;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .email-config-panel {
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(45, 55, 72, 0.3);
+            border-radius: 12px;
+            border: 1px solid #4a5568;
+        }
+
+        .config-form {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .email-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(15, 20, 25, 0.8);
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .add-email-btn {
+            padding: 12px 16px;
+            background: linear-gradient(45deg, #10b981, #059669);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .add-email-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .email-list {
+            margin: 20px 0;
+        }
+
+        .email-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(15, 20, 25, 0.6);
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .email-item:hover {
+            background: rgba(15, 20, 25, 0.8);
+            border-color: #6b7280;
+        }
+
+        .email-address {
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .remove-email-btn {
+            padding: 6px 10px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-email-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.05);
+        }
+
+        .config-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .save-config-btn, .test-email-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-config-btn {
+            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .save-config-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .test-email-btn {
+            background: linear-gradient(45deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .test-email-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .test-gmail-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #16a34a, #15803d);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .test-gmail-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3);
+        }
+
+        .gmail-config-section {
+            margin-bottom: 25px;
+        }
+
+        .gmail-status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .gmail-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .gmail-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .config-status {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .config-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .config-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        /* Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .overview-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.8) 0%, rgba(15, 20, 25, 0.9) 100%);
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+            border-color: #4a5568;
+        }
+
+        .overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .overview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .overview-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .overview-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .overview-subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Alert Log Section */
+        .alert-section {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.8) 0%, rgba(15, 20, 25, 0.9) 100%);
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(45, 55, 72, 0.8);
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .clear-alerts-btn {
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clear-alerts-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Alert List */
+        .alert-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(45, 55, 72, 0.3);
+            border: 1px solid #374151;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            background: rgba(45, 55, 72, 0.5);
+            transform: translateX(5px);
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #e2e8f0;
+        }
+
+        .alert-description {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .alert-timestamp {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .alert-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Alert Types */
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .alert-error .alert-icon {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b;
+        }
+
+        .alert-warning .alert-icon {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .alert-info {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: #06b6d4;
+        }
+
+        .alert-info .alert-icon {
+            background: linear-gradient(45deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: #10b981;
+        }
+
+        .alert-success .alert-icon {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+
+        /* Status Badges */
+        .status-sent {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-failed {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-item span {
+                display: none;
+            }
+
+            .sidebar {
+                width: 70px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .logo-section {
+                padding: 20px 10px;
+            }
+
+            .brand-name, .brand-subtitle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="ghost-logo">
+                <i class="fas fa-ghost"></i>
+            </div>
+            <div class="brand-name">GHOST²</div>
+            <div class="brand-subtitle">Mission Report</div>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="ghost-squared-command-center.html" class="nav-item">
+                <i class="nav-icon fas fa-home"></i>
+                <span>Command Center</span>
+            </a>
+            <a href="zombie-army-manager.html" class="nav-item">
+                <i class="nav-icon fas fa-users"></i>
+                <span>Zombie Army</span>
+            </a>
+            <a href="live-surveillance-grid.html" class="nav-item">
+                <i class="nav-icon fas fa-video"></i>
+                <span>Live Surveillance</span>
+            </a>
+            <a href="quick-strike-panel.html" class="nav-item">
+                <i class="nav-icon fas fa-bolt"></i>
+                <span>Quick Strike</span>
+            </a>
+            <a href="ghost-analytics.html" class="nav-item">
+                <i class="nav-icon fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="nav-icon fas fa-clipboard-list"></i>
+                <span>Mission Report</span>
+            </a>
+            <a href="remote-operations.html" class="nav-item">
+                <i class="nav-icon fas fa-gamepad"></i>
+                <span>Remote Ops</span>
+            </a>
+            <a href="security-shield.html" class="nav-item">
+                <i class="nav-icon fas fa-shield-alt"></i>
+                <span>Security Shield</span>
+            </a>
+            <a href="ghost-config.html" class="nav-item">
+                <i class="nav-icon fas fa-cog"></i>
+                <span>Ghost Config</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <h1 class="header-title">Ghost Mission Report</h1>
+            <div class="header-controls">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Monitoring Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Email Configuration Panel -->
+            <div class="email-config-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-envelope-open-text" style="margin-right: 10px; color: #00d4ff;"></i>
+                        Email Alert Configuration
+                    </h2>
+                    <button class="config-toggle-btn" id="configToggleBtn">
+                        <i class="fas fa-cog"></i>
+                        Configure
+                    </button>
+                </div>
+                
+                <div class="email-config-panel" id="emailConfigPanel" style="display: none;">
+                    <div class="config-form">
+                        <!-- Gmail Configuration Section -->
+                        <div class="gmail-config-section">
+                            <h3 style="color: #e2e8f0; margin-bottom: 15px; display: flex; align-items: center;">
+                                <i class="fas fa-envelope" style="margin-right: 10px; color: #00d4ff;"></i>
+                                Gmail Configuration
+                            </h3>
+                            <div class="gmail-setup-info" style="background: rgba(6, 182, 212, 0.1); border: 1px solid #06b6d4; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                                <p style="color: #06b6d4; font-size: 14px; margin: 0 0 10px 0;">
+                                    <strong>Setup Instructions:</strong>
+                                </p>
+                                <ol style="color: #94a3b8; font-size: 13px; margin: 0; padding-left: 20px;">
+                                    <li>Go to <a href="https://myaccount.google.com/security" target="_blank" style="color: #00d4ff;">Google Account Security</a></li>
+                                    <li>Enable 2-Factor Authentication</li>
+                                    <li>Generate an "App Password" for Gmail</li>
+                                    <li>Use your Gmail address and the App Password below</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Gmail Address:</label>
+                                <input type="email" id="gmailUserInput" placeholder="your-email@gmail.com" class="email-input" style="margin-bottom: 10px;">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Gmail App Password:</label>
+                                <input type="password" id="gmailPasswordInput" placeholder="16-character app password" class="email-input" style="margin-bottom: 15px;">
+                            </div>
+                            
+                            <button class="test-gmail-btn" id="testGmailBtn">
+                                <i class="fas fa-check-circle"></i>
+                                Test & Save Gmail Config
+                            </button>
+                            
+                            <div class="gmail-status" id="gmailStatus" style="margin-top: 15px; display: none;"></div>
+                            
+                            <hr style="border: none; border-top: 1px solid #4a5568; margin: 25px 0;">
+                        </div>
+
+                        <!-- Email Recipients Section -->
+                        <div class="form-group">
+                            <label>Alert Email Recipients:</label>
+                            <div class="email-input-container">
+                                <input type="email" id="emailInput" placeholder="Enter email address..." class="email-input">
+                                <button class="add-email-btn" id="addEmailBtn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="email-list" id="emailList">
+                            <!-- Email addresses will be listed here -->
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button class="save-config-btn" id="saveConfigBtn">
+                                <i class="fas fa-save"></i>
+                                Save Configuration
+                            </button>
+                            <button class="test-email-btn" id="testEmailBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Test Alert
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="overview-header">
+                        <div class="overview-title">System Health</div>
+                        <div class="overview-icon" style="background: linear-gradient(45deg, #10b981, #059669);">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="overview-value" style="color: #10b981;" id="systemHealth">100%</div>
+                    <div class="overview-subtitle">All systems operational</div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="overview-header">
+                        <div class="overview-title">Active Alerts</div>
+                        <div class="overview-icon" style="background: linear-gradient(45deg, #f59e0b, #d97706);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <div class="overview-value" style="color: #f59e0b;" id="activeAlerts">0</div>
+                    <div class="overview-subtitle">Unresolved issues</div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="overview-header">
+                        <div class="overview-title">Alerts Sent Today</div>
+                        <div class="overview-icon" style="background: linear-gradient(45deg, #06b6d4, #0891b2);">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                    </div>
+                    <div class="overview-value" style="color: #06b6d4;" id="alertsSentToday">0</div>
+                    <div class="overview-subtitle">Email notifications sent</div>
+                </div>
+
+                <div class="overview-card">
+                    <div class="overview-header">
+                        <div class="overview-title">Last Error</div>
+                        <div class="overview-icon" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="overview-value" style="color: #8b5cf6; font-size: 24px;" id="lastError">Never</div>
+                    <div class="overview-subtitle">Time since last system error</div>
+                </div>
+            </div>
+
+            <!-- Alert Log Section -->
+            <div class="alert-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Mission Reports</h2>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="error">Errors</button>
+                        <button class="filter-btn" data-filter="warning">Warnings</button>
+                        <button class="filter-btn" data-filter="info">Info</button>
+                        <button class="filter-btn" data-filter="success">Success</button>
+                        <button class="clear-alerts-btn" id="clearAlertsBtn">
+                            <i class="fas fa-trash"></i>
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="alert-list" id="alertList">
+                    <!-- Alerts will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real system data instead of demo
+        const systemAlerts = []; // Start with empty - no fake data
+
+        // Initialize alerts with real system data
+        let alerts = [];
+        let emailAddresses = []; // Store configured email addresses
+        let gmailConfig = { user: '', password: '', configured: false }; // Gmail configuration
+
+        // DOM elements
+        const alertList = document.getElementById('alertList');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const systemHealth = document.getElementById('systemHealth');
+        const activeAlerts = document.getElementById('activeAlerts');
+        const alertsSentToday = document.getElementById('alertsSentToday');
+        const lastError = document.getElementById('lastError');
+
+        // Email configuration elements
+        const configToggleBtn = document.getElementById('configToggleBtn');
+        const emailConfigPanel = document.getElementById('emailConfigPanel');
+        const emailInput = document.getElementById('emailInput');
+        const addEmailBtn = document.getElementById('addEmailBtn');
+        const emailList = document.getElementById('emailList');
+        const saveConfigBtn = document.getElementById('saveConfigBtn');
+        const testEmailBtn = document.getElementById('testEmailBtn');
+        
+        // Gmail configuration elements
+        const gmailUserInput = document.getElementById('gmailUserInput');
+        const gmailPasswordInput = document.getElementById('gmailPasswordInput');
+        const testGmailBtn = document.getElementById('testGmailBtn');
+        const gmailStatus = document.getElementById('gmailStatus');
+
+        // Filter functionality
+        let currentFilter = 'all';
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderAlerts();
+            });
+        });
+
+        // Clear alerts functionality
+        function clearAllAlerts() {
+            if (confirm('Are you sure you want to clear all alerts and reset system status?')) {
+                // Clear local alerts
+                alerts = [];
+                renderAlerts();
+                
+                // Clear server alerts
+                fetch('/api/clear-alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh system info to show clean state
+                        loadSystemInfo();
+                        addAlert('info', 'System Reset', 'All alerts cleared and system status reset');
+                        console.log('🧹 All alerts cleared successfully');
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to clear server alerts:', error);
+                });
+            }
+        }
+
+        // Add event listener for clear button
+        document.getElementById('clearAlertsBtn').addEventListener('click', clearAllAlerts);
+
+        // Gmail Configuration Functions
+        function testGmailConfiguration() {
+            const gmailUser = gmailUserInput.value.trim();
+            const gmailPassword = gmailPasswordInput.value.trim();
+            
+            if (!gmailUser || !gmailPassword) {
+                showGmailStatus('Please enter both Gmail address and App Password', 'error');
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(gmailUser)) {
+                showGmailStatus('Please enter a valid Gmail address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            testGmailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing Gmail...';
+            testGmailBtn.disabled = true;
+            
+            // Test Gmail configuration
+            fetch('/api/configure-gmail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gmailUser: gmailUser,
+                    gmailPassword: gmailPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    gmailConfig.user = gmailUser;
+                    gmailConfig.password = gmailPassword;
+                    gmailConfig.configured = true;
+                    
+                    showGmailStatus(`✅ Gmail configured successfully! Ready to send emails from ${gmailUser}`, 'success');
+                    
+                    // Add success alert
+                    addAlert('success', 'Gmail Configured', `Email service configured with ${gmailUser}`);
+                } else {
+                    showGmailStatus(`❌ ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showGmailStatus(`❌ Configuration failed: ${error.message}`, 'error');
+            })
+            .finally(() => {
+                testGmailBtn.innerHTML = '<i class="fas fa-check-circle"></i> Test & Save Gmail Config';
+                testGmailBtn.disabled = false;
+            });
+        }
+        
+        function showGmailStatus(message, type) {
+            gmailStatus.textContent = message;
+            gmailStatus.className = `gmail-status ${type}`;
+            gmailStatus.style.display = 'block';
+            
+            // Auto-hide after 10 seconds for success, keep errors visible
+            if (type === 'success') {
+                setTimeout(() => {
+                    gmailStatus.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        // Email Configuration Functions
+        function toggleEmailConfig() {
+            const isVisible = emailConfigPanel.style.display !== 'none';
+            emailConfigPanel.style.display = isVisible ? 'none' : 'block';
+            configToggleBtn.innerHTML = isVisible ? 
+                '<i class="fas fa-cog"></i> Configure' : 
+                '<i class="fas fa-times"></i> Close';
+        }
+
+        function addEmailAddress() {
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            // Simple email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showConfigStatus('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Check if email already exists
+            if (emailAddresses.includes(email)) {
+                showConfigStatus('Email address already added', 'error');
+                return;
+            }
+
+            emailAddresses.push(email);
+            emailInput.value = '';
+            renderEmailList();
+            showConfigStatus('Email address added successfully', 'success');
+        }
+
+        function removeEmailAddress(email) {
+            const index = emailAddresses.indexOf(email);
+            if (index > -1) {
+                emailAddresses.splice(index, 1);
+                renderEmailList();
+                showConfigStatus('Email address removed', 'success');
+            }
+        }
+
+        function renderEmailList() {
+            if (emailAddresses.length === 0) {
+                emailList.innerHTML = '<p style="color: #6b7280; font-style: italic; padding: 15px 0;">No email addresses configured</p>';
+                return;
+            }
+
+            emailList.innerHTML = emailAddresses.map(email => `
+                <div class="email-item">
+                    <span class="email-address">${email}</span>
+                    <button class="remove-email-btn" onclick="removeEmailAddress('${email}')">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function saveEmailConfiguration() {
+            // Save to localStorage for persistence
+            localStorage.setItem('ghostEmailConfig', JSON.stringify(emailAddresses));
+            localStorage.setItem('ghostGmailConfig', JSON.stringify(gmailConfig));
+            
+            // Send to backend (if available)
+            fetch('/api/configure-alerts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    emailAddresses: emailAddresses,
+                    alertTypes: ['error', 'warning'], // Only send errors and warnings
+                    gmailUser: gmailConfig.user,
+                    gmailPassword: gmailConfig.password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showConfigStatus('Configuration saved successfully!', 'success');
+            })
+            .catch(error => {
+                showConfigStatus('Configuration saved locally (server not available)', 'success');
+            });
+        }
+
+        function sendTestEmail() {
+            if (emailAddresses.length === 0) {
+                showConfigStatus('Please add at least one email address first', 'error');
+                return;
+            }
+
+            const testAlert = {
+                type: 'info',
+                title: 'Test Alert - Ghost Mission Report',
+                description: `This is a test alert sent from Ghost² Mission Report at ${new Date().toLocaleString()}`,
+                emailAddresses: emailAddresses
+            };
+
+            // Send test email via backend
+            fetch('/api/send-test-alert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testAlert)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showConfigStatus('Test alert sent successfully!', 'success');
+                addAlert('info', 'Test Alert Sent', `Test email sent to ${emailAddresses.length} recipient(s)`);
+            })
+            .catch(error => {
+                showConfigStatus('Failed to send test alert (check server connection)', 'error');
+            });
+        }
+
+        function showConfigStatus(message, type) {
+            const statusDiv = document.querySelector('.config-status') || document.createElement('div');
+            statusDiv.className = `config-status ${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            if (!document.querySelector('.config-status')) {
+                document.querySelector('.config-form').appendChild(statusDiv);
+            }
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function loadEmailConfiguration() {
+            // Load from localStorage first
+            const saved = localStorage.getItem('ghostEmailConfig');
+            if (saved) {
+                try {
+                    emailAddresses = JSON.parse(saved);
+                    renderEmailList();
+                    console.log('📧 Loaded email config from localStorage:', emailAddresses);
+                } catch (error) {
+                    console.error('Error loading email config from localStorage:', error);
+                }
+            }
+            
+            // Load Gmail configuration
+            const savedGmail = localStorage.getItem('ghostGmailConfig');
+            if (savedGmail) {
+                try {
+                    gmailConfig = JSON.parse(savedGmail);
+                    if (gmailConfig.user) {
+                        gmailUserInput.value = gmailConfig.user;
+                        gmailPasswordInput.value = gmailConfig.password;
+                        if (gmailConfig.configured) {
+                            showGmailStatus(`✅ Gmail configured: ${gmailConfig.user}`, 'success');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading Gmail config:', error);
+                }
+            }
+            
+            // Also try to load from server
+            fetch('/api/email-config')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.addresses && data.addresses.length > 0) {
+                        emailAddresses = data.addresses;
+                        renderEmailList();
+                        // Save to localStorage as backup
+                        localStorage.setItem('ghostEmailConfig', JSON.stringify(emailAddresses));
+                        console.log('📧 Loaded email config from server:', emailAddresses);
+                    }
+                    
+                    if (data.gmailUser) {
+                        gmailConfig.user = data.gmailUser;
+                        gmailConfig.configured = data.gmailConfigured;
+                        gmailUserInput.value = data.gmailUser;
+                        if (data.gmailConfigured) {
+                            showGmailStatus(`✅ Gmail configured: ${data.gmailUser}`, 'success');
+                        }
+                        localStorage.setItem('ghostGmailConfig', JSON.stringify(gmailConfig));
+                    }
+                })
+                .catch(error => {
+                    console.log('📧 Server config not available, using localStorage only');
+                });
+        }
+
+        // Event listeners for email configuration
+        configToggleBtn.addEventListener('click', toggleEmailConfig);
+        addEmailBtn.addEventListener('click', addEmailAddress);
+        saveConfigBtn.addEventListener('click', saveEmailConfiguration);
+        testEmailBtn.addEventListener('click', sendTestEmail);
+        testGmailBtn.addEventListener('click', testGmailConfiguration);
+
+        // Add email on Enter key
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addEmailAddress();
+            }
+        });
+
+        // Test Gmail on Enter key in password field
+        gmailPasswordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                testGmailConfiguration();
+            }
+        });
+
+        // Make removeEmailAddress globally accessible
+        window.removeEmailAddress = removeEmailAddress;
+
+        // Render alerts function - start clean
+        function renderAlerts() {
+            const filteredAlerts = currentFilter === 'all' 
+                ? alerts 
+                : alerts.filter(alert => alert.type === currentFilter);
+
+            if (filteredAlerts.length === 0) {
+                alertList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h3>No alerts to display</h3>
+                        <p>System is running smoothly. ${currentFilter === 'all' ? 'All alerts' : currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1) + ' alerts'} will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            alertList.innerHTML = filteredAlerts.map(alert => `
+                <div class="alert-item alert-${alert.type}">
+                    <div class="alert-icon">
+                        <i class="fas fa-${getAlertIcon(alert.type)}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-description">${alert.description}</div>
+                        <div class="alert-timestamp">${alert.timestamp}</div>
+                    </div>
+                    <div class="alert-status status-${alert.status}">${alert.status.toUpperCase()}</div>
+                </div>
+            `).join('');
+        }
+
+        // Get alert icon based on type
+        function getAlertIcon(type) {
+            const icons = {
+                error: 'times-circle',
+                warning: 'exclamation-triangle',
+                info: 'info-circle',
+                success: 'check-circle'
+            };
+            return icons[type] || 'bell';
+        }
+
+        // Add new alert function
+        function addAlert(type, title, description, status = 'sent') {
+            const newAlert = {
+                type,
+                title,
+                description,
+                timestamp: new Date().toLocaleString(),
+                status
+            };
+            alerts.unshift(newAlert);
+            renderAlerts();
+            updateOverviewStats();
+        }
+
+        // Load real system information
+        function loadSystemInfo() {
+            // Get real system stats from server
+            fetch('/api/system-status')
+                .then(response => response.json())
+                .then(data => {
+                    updateSystemStats(data);
+                })
+                .catch(error => {
+                    console.error('Failed to load system info:', error);
+                    // Add real error alert
+                    addAlert('error', 'System Status Error', 'Failed to load system information from server');
+                });
+        }
+
+        function updateSystemStats(data) {
+            // Update with real server data only
+            if (data) {
+                document.getElementById('systemHealth').textContent = data.health || 'Loading...';
+                document.getElementById('activeAlerts').textContent = data.activeAlerts || '0';
+                document.getElementById('alertsSentToday').textContent = data.alertsSentToday || '0';
+                document.getElementById('lastError').textContent = data.lastError || 'Never';
+                
+                // Update colors based on real data
+                const healthElement = document.getElementById('systemHealth');
+                const healthValue = parseInt(data.health) || 100;
+                healthElement.style.color = healthValue > 80 ? '#10b981' : healthValue > 50 ? '#f59e0b' : '#ef4444';
+            }
+        }
+
+        // Update overview statistics with real data only
+        function updateOverviewStats() {
+            // Only update with real server data, no fake calculations
+            loadSystemInfo(); // Load real data from server
+        }
+
+        // Real-time monitoring - only real system events
+        function startMonitoring() {
+            // Check for real system updates every 30 seconds
+            setInterval(() => {
+                loadSystemInfo(); // Load real system data
+            }, 30000);
+            
+            // No fake random events - only real system monitoring
+            console.log('📊 Real-time monitoring started - checking system status every 30 seconds');
+        }
+
+        // API functions for backend integration
+        window.GhostMissionReport = {
+            // Add alert from backend
+            addAlert: addAlert,
+            
+            // Get all alerts
+            getAlerts: () => alerts,
+            
+            // Clear all alerts
+            clearAlerts: () => {
+                alerts = [];
+                renderAlerts();
+                updateOverviewStats();
+            },
+            
+            // Send test alert
+            sendTestAlert: () => {
+                addAlert('info', 'Test Alert', 'This is a test alert sent from the Mission Report dashboard');
+            },
+
+            // Email configuration functions
+            getEmailAddresses: () => emailAddresses,
+            
+            setEmailAddresses: (emails) => {
+                emailAddresses = emails;
+                renderEmailList();
+            },
+            
+            addEmailAddress: (email) => {
+                if (!emailAddresses.includes(email)) {
+                    emailAddresses.push(email);
+                    renderEmailList();
+                    return true;
+                }
+                return false;
+            },
+
+            // Send email alert (for backend integration)
+            sendEmailAlert: (type, title, description) => {
+                if (emailAddresses.length === 0) return false;
+                
+                // Only send errors and warnings via email
+                if (type === 'error' || type === 'warning') {
+                    addAlert(type, title, description);
+                    
+                    // Send to backend
+                    fetch('/api/send-alert-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type, title, description,
+                            emailAddresses: emailAddresses,
+                            timestamp: new Date().toISOString()
+                        })
+                    }).catch(console.error);
+                    
+                    return true;
+                }
+                
+                // Still add to dashboard for info/success
+                addAlert(type, title, description);
+                return false;
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmailConfiguration();
+            loadSystemInfo(); // Load real system data
+            renderAlerts(); // Start with empty alerts, no fake data
+            startMonitoring();
+            
+            console.log('📊 Ghost² Mission Report initialized - showing real data only');
+        });
+    </script>
+</body>
+</html>

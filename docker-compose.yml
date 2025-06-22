@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  ghost-squared:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      - ./SERVER/simple-server:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ghost-squared-prod:
+    build: .
+    ports:
+      - "8080:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  default:
+    name: ghost-squared-network

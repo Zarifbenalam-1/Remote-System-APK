@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Ghost Analytics - Ghost Squared</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #00ffff;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .logo-text .subtitle {
+            font-size: 0.9rem;
+            color: #00ffff;
+            font-weight: 400;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            border-radius: 25px;
+            color: #00ffff;
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #000;
+        }
+
+        .stat-title {
+            font-size: 1rem;
+            color: #cccccc;
+            font-weight: 400;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: #2ed573;
+        }
+
+        .stat-change.negative {
+            color: #ff4757;
+        }
+
+        .chart-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+            height: 400px;
+        }
+
+        .chart-box h3 {
+            color: #00ffff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .analytics-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-right: 1px solid #333;
+        }
+
+        .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .device-analytics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .device-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .device-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .device-name {
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .device-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #cccccc;
+            margin-top: 0.25rem;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .performance-item {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .performance-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .performance-label {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .activity-log {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-action {
+            color: #ffffff;
+        }
+
+        .log-device {
+            color: #00ffff;
+            font-weight: 600;
+        }
+
+        .log-time {
+            color: #cccccc;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                border-right: none;
+                border-bottom: 1px solid #333;
+            }
+
+            .device-analytics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <div class="logo-text">
+                    <h1>GHOST SQUARED</h1>
+                    <div class="subtitle">Ghost Analytics</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="ghost-squared-command-center.html" class="nav-btn">🏠 Command Center</a>
+                <a href="zombie-army-manager.html" class="nav-btn">🧟 Army Manager</a>
+                <a href="live-surveillance-grid.html" class="nav-btn">📹 Surveillance</a>
+                <a href="quick-strike-panel.html" class="nav-btn">⚡ Quick Strike</a>
+                <a href="remote-operations.html" class="nav-btn">🎮 Operations</a>
+                <a href="security-shield.html" class="nav-btn">🛡️ Security</a>
+                <a href="ghost-config.html" class="nav-btn">⚙️ Config</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-title">Total Devices</div>
+                </div>
+                <div class="stat-value" id="totalDevices">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="deviceChange">+0 this hour</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-title">Commands Executed</div>
+                </div>
+                <div class="stat-value" id="totalCommands">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="commandChange">+0 today</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-title">Avg Response Time</div>
+                </div>
+                <div class="stat-value" id="avgResponse">--</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span id="responseChange">-12ms vs yesterday</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-title">Success Rate</div>
+                </div>
+                <div class="stat-value" id="successRate">--</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="successChange">+2.5% this week</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-title">Data Transferred</div>
+                </div>
+                <div class="stat-value" id="dataTransferred">0 MB</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="dataChange">+156MB today</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🔋</div>
+                    <div class="stat-title">Avg Battery Level</div>
+                </div>
+                <div class="stat-value" id="avgBattery">--</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span id="batteryChange">-5% since morning</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">📈 Overview</button>
+            <button class="tab-btn" onclick="showTab('devices')">📱 Device Analytics</button>
+            <button class="tab-btn" onclick="showTab('performance')">⚡ Performance</button>
+            <button class="tab-btn" onclick="showTab('activity')">📋 Activity Log</button>
+        </div>
+
+        <div id="overview" class="tab-content active">
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h3>📊 Command Execution Over Time</h3>
+                    <canvas id="commandChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>⏱️ Response Time Trends</h3>
+                    <canvas id="responseChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>📱 Device Status Distribution</h3>
+                    <canvas id="deviceStatusChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>🔋 Battery Level Distribution</h3>
+                    <canvas id="batteryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="devices" class="tab-content">
+            <div class="device-analytics" id="deviceAnalytics">
+                <!-- Device analytics will be loaded here -->
+            </div>
+        </div>
+
+        <div id="performance" class="tab-content">
+            <div class="performance-grid">
+                <div class="performance-item">
+                    <div class="performance-value" id="cpuUsage">--</div>
+                    <div class="performance-label">Server CPU Usage</div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-value" id="memoryUsage">--</div>
+                    <div class="performance-label">Memory Usage</div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-value" id="networkUsage">--</div>
+                    <div class="performance-label">Network Usage</div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-value" id="activeConnections">--</div>
+                    <div class="performance-label">Active Connections</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">🚀 System Performance Metrics</div>
+                <div class="chart-grid">
+                    <div class="chart-box">
+                        <h3>💻 Server Resource Usage</h3>
+                        <canvas id="resourceChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>🌐 Network Traffic</h3>
+                        <canvas id="networkChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="activity" class="tab-content">
+            <div class="chart-container">
+                <div class="chart-title">📋 Recent Activity Log</div>
+                <div class="activity-log" id="activityLog">
+                    <!-- Activity entries will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let devices = [];
+        let analytics = {};
+        let charts = {};
+
+        // Initialize dashboard
+        async function initDashboard() {
+            await loadAnalytics();
+            await loadDevices();
+            updateStats();
+            initCharts();
+            startRealTimeUpdates();
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/summary');
+                if (response.ok) {
+                    analytics = await response.json();
+                } else {
+                    analytics = generateMockAnalytics();
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                analytics = generateMockAnalytics();
+            }
+        }
+
+        // Load devices
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/zombie/list');
+                if (response.ok) {
+                    devices = await response.json();
+                } else {
+                    devices = [];
+                }
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                devices = [];
+            }
+        }
+
+        // Generate mock analytics data for demonstration
+        function generateMockAnalytics() {
+            const now = Date.now();
+            return {
+                totalCommands: Math.floor(Math.random() * 1000) + 500,
+                avgResponseTime: Math.floor(Math.random() * 200) + 50,
+                successRate: (Math.random() * 20 + 80).toFixed(1),
+                dataTransferred: (Math.random() * 500 + 100).toFixed(1),
+                commandHistory: Array.from({length: 24}, (_, i) => ({
+                    hour: 23 - i,
+                    commands: Math.floor(Math.random() * 50) + 10
+                })).reverse(),
+                responseHistory: Array.from({length: 24}, (_, i) => ({
+                    hour: 23 - i,
+                    avgTime: Math.floor(Math.random() * 100) + 50
+                })).reverse(),
+                performance: {
+                    cpu: Math.floor(Math.random() * 30) + 20,
+                    memory: Math.floor(Math.random() * 40) + 30,
+                    network: Math.floor(Math.random() * 60) + 20,
+                    connections: devices.length
+                }
+            };
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalDevices').textContent = devices.length;
+            document.getElementById('totalCommands').textContent = analytics.totalCommands || '0';
+            document.getElementById('avgResponse').textContent = analytics.avgResponseTime ? `${analytics.avgResponseTime}ms` : '--';
+            document.getElementById('successRate').textContent = analytics.successRate ? `${analytics.successRate}%` : '--';
+            document.getElementById('dataTransferred').textContent = analytics.dataTransferred ? `${analytics.dataTransferred} MB` : '0 MB';
+            
+            // Calculate average battery
+            if (devices.length > 0) {
+                const avgBattery = devices.reduce((sum, device) => sum + (parseInt(device.batteryLevel) || 0), 0) / devices.length;
+                document.getElementById('avgBattery').textContent = `${avgBattery.toFixed(0)}%`;
+            }
+
+            // Update performance metrics
+            if (analytics.performance) {
+                document.getElementById('cpuUsage').textContent = `${analytics.performance.cpu}%`;
+                document.getElementById('memoryUsage').textContent = `${analytics.performance.memory}%`;
+                document.getElementById('networkUsage').textContent = `${analytics.performance.network}%`;
+                document.getElementById('activeConnections').textContent = analytics.performance.connections;
+            }
+
+            updateDeviceAnalytics();
+            updateActivityLog();
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Command execution chart
+            const commandCtx = document.getElementById('commandChart').getContext('2d');
+            charts.command = new Chart(commandCtx, {
+                type: 'line',
+                data: {
+                    labels: analytics.commandHistory?.map(h => `${h.hour}:00`) || [],
+                    datasets: [{
+                        label: 'Commands',
+                        data: analytics.commandHistory?.map(h => h.commands) || [],
+                        borderColor: '#00ffff',
+                        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cccccc' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#cccccc' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+
+            // Response time chart
+            const responseCtx = document.getElementById('responseChart').getContext('2d');
+            charts.response = new Chart(responseCtx, {
+                type: 'line',
+                data: {
+                    labels: analytics.responseHistory?.map(h => `${h.hour}:00`) || [],
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: analytics.responseHistory?.map(h => h.avgTime) || [],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cccccc' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#cccccc' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+
+            // Device status chart
+            const deviceStatusCtx = document.getElementById('deviceStatusChart').getContext('2d');
+            const onlineDevices = devices.filter(d => d.status === 'online').length;
+            const offlineDevices = devices.length - onlineDevices;
+            
+            charts.deviceStatus = new Chart(deviceStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Online', 'Offline'],
+                    datasets: [{
+                        data: [onlineDevices, offlineDevices],
+                        backgroundColor: ['#2ed573', '#ff4757'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    }
+                }
+            });
+
+            // Battery level chart
+            const batteryCtx = document.getElementById('batteryChart').getContext('2d');
+            const batteryRanges = [0, 0, 0, 0]; // 0-25%, 26-50%, 51-75%, 76-100%
+            devices.forEach(device => {
+                const battery = parseInt(device.batteryLevel) || 0;
+                if (battery <= 25) batteryRanges[0]++;
+                else if (battery <= 50) batteryRanges[1]++;
+                else if (battery <= 75) batteryRanges[2]++;
+                else batteryRanges[3]++;
+            });
+
+            charts.battery = new Chart(batteryCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-25%', '26-50%', '51-75%', '76-100%'],
+                    datasets: [{
+                        label: 'Devices',
+                        data: batteryRanges,
+                        backgroundColor: ['#ff4757', '#ffa502', '#eccc68', '#2ed573']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cccccc' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#cccccc' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+
+            // Resource usage chart
+            const resourceCtx = document.getElementById('resourceChart').getContext('2d');
+            charts.resource = new Chart(resourceCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i + 1),
+                    datasets: [
+                        {
+                            label: 'CPU %',
+                            data: Array.from({length: 20}, () => Math.random() * 30 + 20),
+                            borderColor: '#00ffff',
+                            backgroundColor: 'rgba(0, 255, 255, 0.1)'
+                        },
+                        {
+                            label: 'Memory %',
+                            data: Array.from({length: 20}, () => Math.random() * 40 + 30),
+                            borderColor: '#ff6b6b',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cccccc' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#cccccc' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+
+            // Network traffic chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            charts.network = new Chart(networkCtx, {
+                type: 'area',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Network Usage %',
+                        data: Array.from({length: 20}, () => Math.random() * 60 + 20),
+                        borderColor: '#2ed573',
+                        backgroundColor: 'rgba(46, 213, 115, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#cccccc' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#cccccc' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+        }
+
+        // Update device analytics
+        function updateDeviceAnalytics() {
+            const container = document.getElementById('deviceAnalytics');
+            
+            if (devices.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 1rem; color: #ffa502;"></i>
+                        <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">No Device Data Available</div>
+                        <div style="font-size: 0.9rem;">Connect zombie devices to view detailed analytics.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = devices.map(device => `
+                <div class="device-card">
+                    <div class="device-name">${device.deviceName || device.id}</div>
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <div class="metric-value">${device.commandsExecuted || Math.floor(Math.random() * 50)}</div>
+                            <div class="metric-label">Commands</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${device.avgResponseTime || Math.floor(Math.random() * 200) + 50}ms</div>
+                            <div class="metric-label">Avg Response</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${device.batteryLevel || Math.floor(Math.random() * 40) + 60}%</div>
+                            <div class="metric-label">Battery</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${device.uptime || Math.floor(Math.random() * 24)}h</div>
+                            <div class="metric-label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update activity log
+        function updateActivityLog() {
+            const log = document.getElementById('activityLog');
+            const activities = [
+                'Camera started',
+                'Audio recording initiated',
+                'Command executed',
+                'Status updated',
+                'Device connected',
+                'Surveillance mode activated',
+                'File transferred',
+                'Location updated',
+                'Battery status reported',
+                'Network scan completed'
+            ];
+
+            const entries = Array.from({length: 20}, (_, i) => {
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const device = devices.length > 0 ? devices[Math.floor(Math.random() * devices.length)] : { deviceName: 'Unknown Device' };
+                const time = new Date(Date.now() - Math.random() * 3600000).toLocaleTimeString();
+                
+                return `
+                    <div class="log-entry">
+                        <div class="log-action">${activity}</div>
+                        <div class="log-device">${device.deviceName || device.id || 'Unknown Device'}</div>
+                        <div class="log-time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+
+            log.innerHTML = entries;
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            setInterval(async () => {
+                await loadAnalytics();
+                await loadDevices();
+                updateStats();
+                
+                // Update charts if needed
+                if (charts.deviceStatus) {
+                    const onlineDevices = devices.filter(d => d.status === 'online').length;
+                    const offlineDevices = devices.length - onlineDevices;
+                    charts.deviceStatus.data.datasets[0].data = [onlineDevices, offlineDevices];
+                    charts.deviceStatus.update();
+                }
+            }, 10000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

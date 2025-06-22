@@ -1,23 +1,42 @@
 {
-  "name": "remote-system-server",
-  "version": "1.0.0",
+  "name": "ghost-squared-server",
+  "version": "3.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon server.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "echo 'No build step required'",
+    "pm2:start": "pm2 start ecosystem.config.json --env production",
+    "pm2:stop": "pm2 stop ghost-squared",
+    "pm2:restart": "pm2 restart ghost-squared",
+    "pm2:logs": "pm2 logs ghost-squared",
+    "docker:build": "docker build -t ghost-squared .",
+    "docker:run": "docker run -p 3000:3000 ghost-squared",
+    "docker:compose": "docker-compose up -d",
+    "docker:stop": "docker-compose down"
   },
-  "keywords": ["android", "remote-control", "socket.io", "nodejs", "standalone", "device-management"],
+  "keywords": [
+    "android",
+    "remote-control",
+    "socket.io",
+    "nodejs",
+    "standalone",
+    "device-management"
+  ],
   "author": "Remote Device Management Team",
   "license": "MIT",
   "description": "Standalone relay server for Remote Device Management - bridges Android devices and Windows clients",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "multer": "^2.0.0",
-    "socket.io": "^4.8.1",
-    "uuid": "^11.1.0",
     "firebase-admin": "^12.0.0",
-    "node-cron": "^3.0.3"
+    "multer": "^2.0.0",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^7.0.3",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
   }
 }

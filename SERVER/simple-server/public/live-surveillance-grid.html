@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Squared - Live Surveillance Grid</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0e16 0%, #1a1d29 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Ghost Squared Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1d29 0%, #0f1419 100%);
+            border-right: 1px solid #2d3748;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .logo-section {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .ghost-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #00d4ff;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding-left: 35px;
+        }
+
+        .nav-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-item.active {
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+            padding-left: 35px;
+        }
+
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1d29 100%);
+        }
+
+        /* Top Header */
+        .surveillance-header {
+            background: rgba(26, 29, 41, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2d3748;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .surveillance-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: 1px solid #4a5568;
+            background: rgba(45, 55, 72, 0.8);
+            color: #94a3b8;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-color: #00d4ff;
+            color: white;
+        }
+
+        .control-btn.recording {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .surveillance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(45, 55, 72, 0.5);
+            border-radius: 10px;
+            border: 1px solid #2d3748;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Surveillance Grid */
+        .surveillance-content {
+            padding: 30px;
+        }
+
+        .grid-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .grid-layout-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .layout-btn {
+            padding: 8px 12px;
+            border: 1px solid #4a5568;
+            background: rgba(45, 55, 72, 0.8);
+            color: #94a3b8;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .layout-btn.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        .feed-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .feed-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .feed-grid.layout-2x2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .feed-grid.layout-3x3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .feed-grid.layout-4x4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .feed-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.95), rgba(45, 55, 72, 0.7));
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+            transition: all 0.3s ease;
+        }
+
+        .feed-card:hover {
+            transform: scale(1.02);
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .feed-video {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1a1d29, #2d3748);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .feed-placeholder {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .feed-placeholder-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .feed-placeholder-text {
+            font-size: 14px;
+        }
+
+        .feed-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feed-card:hover .feed-overlay {
+            opacity: 1;
+        }
+
+        .feed-header {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .feed-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feed-status.live {
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .feed-status.recording {
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .feed-status.offline {
+            color: #64748b;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .feed-pulse {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .feed-pulse.live {
+            background: #10b981;
+        }
+
+        .feed-pulse.recording {
+            background: #ef4444;
+        }
+
+        .feed-controls-overlay {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .feed-btn {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .feed-btn:hover {
+            background: rgba(0, 212, 255, 0.8);
+            border-color: #00d4ff;
+        }
+
+        /* Audio Visualizer */
+        .audio-section {
+            margin-top: 30px;
+        }
+
+        .audio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .audio-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.95), rgba(45, 55, 72, 0.7));
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .audio-title {
+            font-size: 16px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .audio-level {
+            font-size: 12px;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .audio-visualizer {
+            height: 60px;
+            display: flex;
+            align-items: end;
+            gap: 2px;
+            padding: 10px 0;
+        }
+
+        .audio-bar {
+            flex: 1;
+            background: linear-gradient(to top, #00d4ff, #0099cc);
+            border-radius: 1px;
+            transition: height 0.1s ease;
+            min-height: 2px;
+        }
+
+        /* No Feeds State */
+        .no-feeds {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+
+        .no-feeds-icon {
+            font-size: 64px;
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .no-feeds-title {
+            font-size: 24px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .no-feeds-subtitle {
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .feed-grid.layout-2x2,
+            .feed-grid.layout-3x3,
+            .feed-grid.layout-4x4 {
+                grid-template-columns: 1fr;
+            }
+
+            .surveillance-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="ghost-logo">
+                <i class="fas fa-ghost"></i>
+            </div>
+            <div class="brand-name">GHOST²</div>
+            <div class="brand-subtitle">Command Center</div>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="ghost-squared-command-center.html" class="nav-item">
+                <i class="nav-icon fas fa-home"></i>
+                <span>Command Center</span>
+            </a>
+            <a href="zombie-army-manager.html" class="nav-item">
+                <i class="nav-icon fas fa-users"></i>
+                <span>Zombie Army</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="nav-icon fas fa-video"></i>
+                <span>Live Surveillance</span>
+            </a>
+            <a href="quick-strike-panel.html" class="nav-item">
+                <i class="nav-icon fas fa-bolt"></i>
+                <span>Quick Strike</span>
+            </a>
+            <a href="ghost-analytics.html" class="nav-item">
+                <i class="nav-icon fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="nav-icon fas fa-bell"></i>
+                <span>Ghost Alerts</span>
+            </a>
+            <a href="remote-operations.html" class="nav-item">
+                <i class="nav-icon fas fa-gamepad"></i>
+                <span>Remote Ops</span>
+            </a>
+            <a href="security-shield.html" class="nav-item">
+                <i class="nav-icon fas fa-shield-alt"></i>
+                <span>Security Shield</span>
+            </a>
+            <a href="ghost-config.html" class="nav-item">
+                <i class="nav-icon fas fa-cog"></i>
+                <span>Ghost Config</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Surveillance Header -->
+        <header class="surveillance-header">
+            <div class="header-top">
+                <h1 class="header-title">Live Surveillance Grid</h1>
+                <div class="surveillance-controls">
+                    <button class="control-btn primary" onclick="startAllFeeds()">
+                        <i class="fas fa-play"></i>
+                        Start All Feeds
+                    </button>
+                    <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
+                        <i class="fas fa-record-vinyl"></i>
+                        Start Recording
+                    </button>
+                    <button class="control-btn" onclick="takeSnapshot()">
+                        <i class="fas fa-camera"></i>
+                        Snapshot All
+                    </button>
+                    <button class="control-btn" onclick="refreshFeeds()">
+                        <i class="fas fa-sync"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div class="surveillance-stats">
+                <div class="stat-item">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #10b981, #059669);">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="liveFeeds">0</div>
+                        <div class="stat-label">Live Feeds</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #ef4444, #dc2626);">
+                        <i class="fas fa-record-vinyl"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="recordingFeeds">0</div>
+                        <div class="stat-label">Recording</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #f59e0b, #d97706);">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="audioFeeds">0</div>
+                        <div class="stat-label">Audio Feeds</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="storageUsed">0 GB</div>
+                        <div class="stat-label">Storage Used</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Surveillance Content -->
+        <div class="surveillance-content">
+            <div class="grid-controls">
+                <div class="grid-layout-controls">
+                    <button class="layout-btn active" onclick="setGridLayout('2x2')" data-layout="2x2">2×2</button>
+                    <button class="layout-btn" onclick="setGridLayout('3x3')" data-layout="3x3">3×3</button>
+                    <button class="layout-btn" onclick="setGridLayout('4x4')" data-layout="4x4">4×4</button>
+                </div>
+                <div class="feed-controls">
+                    <button class="control-btn" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i>
+                        Fullscreen
+                    </button>
+                    <button class="control-btn" onclick="toggleAudio()">
+                        <i class="fas fa-volume-up"></i>
+                        Audio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feed Grid -->
+            <div class="feed-grid layout-2x2" id="feedGrid">
+                <!-- Feeds will be populated by JavaScript -->
+            </div>
+
+            <!-- No Feeds State -->
+            <div class="no-feeds" id="noFeedsState" style="display: none;">
+                <div class="no-feeds-icon">
+                    <i class="fas fa-video-slash"></i>
+                </div>
+                <div class="no-feeds-title">No Active Surveillance Feeds</div>
+                <div class="no-feeds-subtitle">Connect zombie devices with camera access to begin live surveillance monitoring</div>
+            </div>
+
+            <!-- Audio Section -->
+            <div class="audio-section" id="audioSection">
+                <div class="audio-header">
+                    <h3 style="color: #e2e8f0; font-size: 20px;">Live Audio Monitoring</h3>
+                    <button class="control-btn" onclick="toggleAudioMonitoring()">
+                        <i class="fas fa-microphone"></i>
+                        Monitor All Audio
+                    </button>
+                </div>
+                <div class="audio-grid" id="audioGrid">
+                    <!-- Audio cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SurveillanceGrid {
+            constructor() {
+                this.feeds = [];
+                this.audioFeeds = [];
+                this.currentLayout = '2x2';
+                this.isRecording = false;
+                this.updateInterval = 2000; // 2 seconds
+                this.init();
+            }
+
+            init() {
+                this.fetchFeeds();
+                setInterval(() => this.fetchFeeds(), this.updateInterval);
+                setInterval(() => this.updateAudioVisualizers(), 100); // Audio update rate
+            }
+
+            async fetchFeeds() {
+                try {
+                    const response = await fetch('/api/surveillance/feeds');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.feeds = data.feeds || [];
+                        this.audioFeeds = data.audio || [];
+                        this.updateStats();
+                        this.renderFeeds();
+                        this.renderAudioFeeds();
+                    } else {
+                        this.showNoFeedsState();
+                    }
+                } catch (error) {
+                    console.log('🔧 Running in demo mode - no real surveillance feeds');
+                    this.showDemoFeeds();
+                }
+            }
+
+            showDemoFeeds() {
+                // Show empty state for now, real feeds will appear when devices are connected
+                this.feeds = [];
+                this.audioFeeds = [];
+                this.updateStats();
+                this.showNoFeedsState();
+            }
+
+            updateStats() {
+                const liveFeeds = this.feeds.filter(f => f.status === 'live').length;
+                const recordingFeeds = this.feeds.filter(f => f.recording).length;
+                const audioFeeds = this.audioFeeds.length;
+                const storageUsed = (recordingFeeds * 1.2 + Math.random() * 0.5).toFixed(1); // Simulated storage
+
+                this.animateCounter('liveFeeds', liveFeeds);
+                this.animateCounter('recordingFeeds', recordingFeeds);
+                this.animateCounter('audioFeeds', audioFeeds);
+                document.getElementById('storageUsed').textContent = storageUsed + ' GB';
+            }
+
+            renderFeeds() {
+                const grid = document.getElementById('feedGrid');
+                const noFeedsState = document.getElementById('noFeedsState');
+
+                if (this.feeds.length === 0) {
+                    this.showNoFeedsState();
+                    return;
+                }
+
+                noFeedsState.style.display = 'none';
+                
+                // Generate demo feeds if none exist
+                if (this.feeds.length === 0) {
+                    this.feeds = this.generateDemoFeeds();
+                }
+
+                grid.innerHTML = this.feeds.map(feed => this.createFeedCard(feed)).join('');
+            }
+
+            showNoFeedsState() {
+                document.getElementById('feedGrid').innerHTML = '';
+                document.getElementById('noFeedsState').style.display = 'block';
+            }
+
+            generateDemoFeeds() {
+                return [
+                    { id: 'feed-1', device: 'Zombie-001', status: 'offline', recording: false },
+                    { id: 'feed-2', device: 'Zombie-002', status: 'offline', recording: false },
+                    { id: 'feed-3', device: 'Zombie-003', status: 'offline', recording: false },
+                    { id: 'feed-4', device: 'Zombie-004', status: 'offline', recording: false }
+                ];
+            }
+
+            createFeedCard(feed) {
+                const statusClass = feed.status || 'offline';
+                const recordingClass = feed.recording ? 'recording' : '';
+
+                return `
+                    <div class="feed-card">
+                        <div class="feed-video">
+                            <div class="feed-placeholder">
+                                <div class="feed-placeholder-icon">
+                                    <i class="fas fa-${statusClass === 'live' ? 'video' : 'video-slash'}"></i>
+                                </div>
+                                <div class="feed-placeholder-text">
+                                    ${statusClass === 'live' ? 'Live Feed' : 'No Signal'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-overlay">
+                            <div class="feed-header">
+                                <div class="feed-title">${feed.device}</div>
+                                <div class="feed-status ${statusClass}">
+                                    <div class="feed-pulse ${statusClass}"></div>
+                                    ${statusClass.toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="feed-controls-overlay">
+                                <button class="feed-btn" onclick="controlFeed('${feed.id}', 'play')">
+                                    <i class="fas fa-play"></i>
+                                    Start
+                                </button>
+                                <button class="feed-btn" onclick="controlFeed('${feed.id}', 'record')">
+                                    <i class="fas fa-record-vinyl"></i>
+                                    Record
+                                </button>
+                                <button class="feed-btn" onclick="controlFeed('${feed.id}', 'snapshot')">
+                                    <i class="fas fa-camera"></i>
+                                    Snap
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderAudioFeeds() {
+                const audioGrid = document.getElementById('audioGrid');
+                
+                if (this.audioFeeds.length === 0) {
+                    audioGrid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                            <i class="fas fa-microphone-slash" style="font-size: 48px; margin-bottom: 20px;"></i>
+                            <div style="font-size: 18px; margin-bottom: 10px;">No Audio Feeds Active</div>
+                            <div style="font-size: 14px;">Enable microphone access on zombie devices to monitor audio</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                audioGrid.innerHTML = this.audioFeeds.map(audio => this.createAudioCard(audio)).join('');
+            }
+
+            createAudioCard(audio) {
+                return `
+                    <div class="audio-card">
+                        <div class="audio-info">
+                            <div class="audio-title">${audio.device}</div>
+                            <div class="audio-level">${audio.level || 0} dB</div>
+                        </div>
+                        <div class="audio-visualizer">
+                            ${Array.from({length: 20}, () => `<div class="audio-bar"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateAudioVisualizers() {
+                const visualizers = document.querySelectorAll('.audio-visualizer');
+                visualizers.forEach(visualizer => {
+                    const bars = visualizer.querySelectorAll('.audio-bar');
+                    bars.forEach(bar => {
+                        const height = Math.random() * 100;
+                        bar.style.height = height + '%';
+                        bar.style.opacity = 0.3 + (height / 100) * 0.7;
+                    });
+                });
+            }
+
+            setGridLayout(layout) {
+                this.currentLayout = layout;
+                const grid = document.getElementById('feedGrid');
+                grid.className = `feed-grid layout-${layout}`;
+                
+                // Update button states
+                document.querySelectorAll('.layout-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-layout="${layout}"]`).classList.add('active');
+            }
+
+            animateCounter(elementId, targetValue) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                const currentValue = parseInt(element.textContent) || 0;
+                const increment = targetValue > currentValue ? 1 : -1;
+                const duration = 1000;
+                const steps = Math.abs(targetValue - currentValue);
+                const stepDuration = steps > 0 ? duration / steps : 0;
+
+                let currentStep = 0;
+                const timer = setInterval(() => {
+                    currentStep++;
+                    const newValue = currentValue + (increment * currentStep);
+                    
+                    if ((increment > 0 && newValue >= targetValue) || 
+                        (increment < 0 && newValue <= targetValue)) {
+                        element.textContent = targetValue;
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = newValue;
+                    }
+                }, stepDuration);
+            }
+        }
+
+        // Global functions for surveillance controls
+        function startAllFeeds() {
+            console.log('📹 Starting all surveillance feeds...');
+            // TODO: Start all camera feeds
+        }
+
+        function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            const isRecording = btn.classList.contains('recording');
+            
+            if (isRecording) {
+                btn.classList.remove('recording');
+                btn.innerHTML = '<i class="fas fa-record-vinyl"></i> Start Recording';
+                console.log('⏹️ Stopping recording...');
+            } else {
+                btn.classList.add('recording');
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+                console.log('🔴 Starting recording...');
+            }
+        }
+
+        function takeSnapshot() {
+            console.log('📸 Taking snapshot of all feeds...');
+            // TODO: Capture snapshots from all active feeds
+        }
+
+        function refreshFeeds() {
+            console.log('🔄 Refreshing surveillance feeds...');
+            window.surveillanceGrid.fetchFeeds();
+        }
+
+        function controlFeed(feedId, action) {
+            console.log(`🎮 Controlling feed ${feedId}: ${action}`);
+            // TODO: Send control command to specific feed
+        }
+
+        function setGridLayout(layout) {
+            window.surveillanceGrid.setGridLayout(layout);
+        }
+
+        function toggleFullscreen() {
+            console.log('🖥️ Toggling fullscreen mode...');
+            // TODO: Toggle fullscreen mode
+        }
+
+        function toggleAudio() {
+            console.log('🔊 Toggling audio...');
+            // TODO: Toggle audio for all feeds
+        }
+
+        function toggleAudioMonitoring() {
+            console.log('🎤 Toggling audio monitoring...');
+            // TODO: Toggle audio monitoring for all devices
+        }
+
+        // Initialize Surveillance Grid
+        document.addEventListener('DOMContentLoaded', () => {
+            window.surveillanceGrid = new SurveillanceGrid();
+        });
+    </script>
+</body>
+</html>
